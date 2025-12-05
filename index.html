@@ -2,408 +2,509 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>xyzaia.mail</title>
+  <title>xyzaia.mail — Quick inbox</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
-    :root {
-      --bg: #fff7fb;
-      --card: #ffe4f0;
-      --accent: #ff9ecb;
-      --accent-dark: #ff74b5;
-      --text: #333;
-      --muted: #777;
-      --border: #ffd0e6;
-    }
-
     * {
       box-sizing: border-box;
+      margin: 0;
+      padding: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
     body {
-      margin: 0;
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: radial-gradient(circle at top, #ffe1f4 0, #fff7fb 45%, #ffffff 100%);
-      color: var(--text);
+      background: radial-gradient(circle at top, #ffd9e8 0, #ffeef5 40%, #fff 100%);
+      color: #2a2a2a;
     }
 
-    .wrapper {
+    .app {
       width: 100%;
-      max-width: 420px;
-      padding: 16px;
+      max-width: 520px;
+      background: #fff7fb;
+      border-radius: 30px;
+      padding: 22px 20px 18px;
+      box-shadow:
+        0 18px 45px rgba(255, 143, 188, 0.35),
+        0 0 0 1px rgba(255, 181, 210, 0.55);
+      border: 1px solid #ffe0f0;
     }
 
-    .card {
-      background: var(--card);
-      border-radius: 18px;
-      box-shadow: 0 10px 25px rgba(255, 144, 192, 0.35);
-      padding: 20px 18px 16px;
-      border: 1px solid var(--border);
-    }
-
-    .brand {
+    .app-header {
       display: flex;
       align-items: center;
-      gap: 10px;
-      margin-bottom: 14px;
+      gap: 12px;
+      margin-bottom: 16px;
     }
 
-    .logo {
-      width: 34px;
-      height: 34px;
-      border-radius: 12px;
-      background: linear-gradient(135deg, #ffb6da, #ff9ecb);
+    .logo-pill {
+      width: 44px;
+      height: 44px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #ff7fb0, #ffb0d8);
       display: flex;
       align-items: center;
       justify-content: center;
-      color: white;
+      color: #fff;
       font-weight: 700;
-      font-size: 18px;
+      font-size: 22px;
+      flex-shrink: 0;
+      box-shadow: 0 8px 20px rgba(255, 143, 188, 0.55);
     }
 
-    .brand-text {
+    .title-wrap {
       display: flex;
       flex-direction: column;
       gap: 2px;
     }
 
-    .brand-text span:first-child {
+    .title-wrap h1 {
+      font-size: 20px;
       font-weight: 700;
-      letter-spacing: 0.03em;
+      letter-spacing: 0.02em;
     }
 
-    .brand-text span:last-child {
+    .title-wrap span {
       font-size: 12px;
-      color: var(--muted);
+      color: #87667b;
     }
 
-    label {
-      font-size: 13px;
+    .title-wrap .brand {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #f06292;
       font-weight: 600;
+    }
+
+    .label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #a05a86;
       margin-bottom: 6px;
-      display: block;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
     }
 
     .input-row {
+      margin-bottom: 10px;
+    }
+
+    .input-shell {
+      position: relative;
       display: flex;
-      gap: 8px;
-      margin-bottom: 10px;
-    }
-
-    .input-row input {
-      flex: 1;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      padding: 10px 13px;
-      font-size: 14px;
-      outline: none;
+      align-items: center;
       background: #fff;
+      border-radius: 999px;
+      padding: 4px 10px 4px 16px;
+      border: 1px solid #ffd1ea;
+      box-shadow: inset 0 0 0 1px rgba(255, 214, 235, 0.7);
     }
 
-    .input-row input:focus {
-      border-color: var(--accent-dark);
-      box-shadow: 0 0 0 2px rgba(255, 140, 199, 0.4);
-    }
-
-    .hint {
+    .input-shell span.domain-tag {
       font-size: 11px;
-      color: var(--muted);
-      margin-bottom: 10px;
+      font-weight: 600;
+      color: #f06292;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: #ffe7f3;
+      margin-right: 8px;
+      flex-shrink: 0;
     }
 
-    .hint strong {
-      color: var(--accent-dark);
+    .input-shell input {
+      border: none;
+      outline: none;
+      flex: 1;
+      font-size: 14px;
+      padding: 6px 2px;
+      background: transparent;
+      color: #333;
+      min-width: 0;
+    }
+
+    .input-shell input::placeholder {
+      color: #c39ab4;
     }
 
     .btn-row {
-      display: flex;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
       gap: 8px;
-      margin-bottom: 10px;
-      flex-wrap: wrap;
+      margin-bottom: 14px;
     }
 
     button {
-      flex: 1;
       border: none;
-      padding: 9px 10px;
       border-radius: 999px;
+      padding: 8px 10px;
       font-size: 13px;
       font-weight: 600;
       cursor: pointer;
-      transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+      transition: transform 0.06s ease, box-shadow 0.06s ease, background 0.12s;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 6px;
+      white-space: nowrap;
     }
 
-    .btn-primary {
-      background: var(--accent);
-      color: #fff;
-      box-shadow: 0 5px 14px rgba(255, 140, 199, 0.55);
-    }
-
-    .btn-primary:hover {
-      background: var(--accent-dark);
-      transform: translateY(-1px);
-      box-shadow: 0 7px 18px rgba(255, 110, 185, 0.6);
-    }
-
-    .btn-secondary {
+    .btn-generate {
       background: #fff;
-      color: var(--accent-dark);
-      border: 1px solid var(--border);
+      color: #d81b60;
+      border: 1px solid #ffcfe4;
+      box-shadow: 0 0 0 1px rgba(255, 205, 230, 0.7);
     }
 
-    .btn-secondary:hover {
-      background: #ffeaf6;
-      transform: translateY(-1px);
+    .btn-copy {
+      background: #ffe7f3;
+      color: #ad1457;
+      border: 1px solid #ffc2df;
     }
 
-    .status {
-      min-height: 18px;
+    .btn-inbox {
+      background: linear-gradient(135deg, #ff5e9a, #ff85b8);
+      color: #fff;
+      box-shadow: 0 9px 18px rgba(255, 115, 170, 0.55);
+    }
+
+    button:active {
+      transform: translateY(1px) scale(0.99);
+      box-shadow: none;
+    }
+
+    .btn-inbox:disabled {
+      opacity: 0.5;
+      cursor: default;
+      box-shadow: none;
+    }
+
+    .hint {
       font-size: 11px;
-      color: var(--muted);
-      margin-bottom: 8px;
+      color: #a37590;
+      margin-bottom: 12px;
     }
 
-    .status.error {
-      color: #c0392b;
+    .divider {
+      height: 1px;
+      background: linear-gradient(to right, transparent, #ffd4eb, transparent);
+      margin-bottom: 10px;
     }
 
-    .status.success {
-      color: #2ecc71;
+    .list-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .list-header span {
+      font-size: 12px;
+      color: #a05a86;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+    }
+
+    .list-header small {
+      font-size: 11px;
+      color: #b488a2;
     }
 
     .messages {
-      max-height: 260px;
+      max-height: 320px;
       overflow-y: auto;
-      padding: 10px 10px 4px;
+      padding-right: 4px;
+    }
+
+    .message-empty {
+      font-size: 13px;
+      color: #b0859c;
+      padding: 10px 2px 4px;
+    }
+
+    .message-card {
       background: #fff;
-      border-radius: 14px;
-      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 10px 12px 9px;
+      margin-bottom: 8px;
+      box-shadow:
+        0 8px 20px rgba(255, 175, 210, 0.40),
+        0 0 0 1px rgba(255, 207, 232, 0.9);
+      border: 1px solid #ffd6ea;
     }
 
-    .msg-empty {
-      font-size: 12px;
-      color: var(--muted);
-      text-align: center;
-      padding: 12px 6px;
-    }
-
-    .msg {
-      padding: 8px 6px 9px;
-      border-bottom: 1px dashed #ffe0ee;
-      font-size: 12px;
-    }
-
-    .msg:last-child {
-      border-bottom: none;
+    .msg-from {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: #c05a88;
+      margin-bottom: 4px;
+      font-weight: 600;
     }
 
     .msg-subject {
+      font-size: 14px;
       font-weight: 600;
-      margin-bottom: 2px;
+      margin-bottom: 4px;
+      color: #333;
+    }
+
+    .msg-snippet {
+      font-size: 13px;
+      color: #7a5c70;
+      line-height: 1.3;
     }
 
     .msg-meta {
       font-size: 11px;
-      color: var(--muted);
-      margin-bottom: 3px;
+      color: #b0849b;
+      margin-top: 6px;
+      display: flex;
+      justify-content: space-between;
     }
 
-    .msg-body {
+    .toast {
+      position: fixed;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #333;
+      color: #fff;
+      padding: 7px 14px;
+      border-radius: 999px;
       font-size: 12px;
-      color: #444;
-      white-space: pre-wrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.18s ease, transform 0.18s ease;
+      z-index: 50;
     }
 
-    .footer {
-      text-align: center;
-      margin-top: 8px;
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    footer {
+      margin-top: 6px;
       font-size: 10px;
-      color: var(--muted);
+      text-align: center;
+      color: #c08aa4;
     }
 
-    .footer span {
-      font-weight: 600;
-      color: var(--accent-dark);
+    @media (max-width: 480px) {
+      .app {
+        border-radius: 24px;
+        padding: 18px 16px 14px;
+      }
+
+      .btn-row {
+        grid-template-columns: 1fr 1fr 1fr;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="wrapper">
-    <div class="card">
-      <div class="brand">
-        <div class="logo">x</div>
-        <div class="brand-text">
-          <span>xyzaia.mail</span>
-          <span>Quick inbox for @xyzaia.store</span>
-        </div>
-      </div>
 
-      <label for="emailInput">Email address</label>
-      <div class="input-row">
-        <input id="emailInput" type="text" placeholder="yourname@xyzaia.store" />
-      </div>
-      <div class="hint">
-        Only address with <strong>@xyzaia.store</strong> works. 
-      </div>
-
-      <div class="btn-row">
-        <button class="btn-secondary" onclick="generateRandomEmail()">
-          🎲 Generate
-        </button>
-        <button class="btn-secondary" onclick="copyEmail()">
-          📋 Copy
-        </button>
-        <button class="btn-primary" onclick="getMessages()">
-          📨 Get inbox
-        </button>
-      </div>
-
-      <div id="status" class="status"></div>
-
-      <div id="messages" class="messages">
-        <div class="msg-empty">No messages yet. Use this email on a site, then tap “Get inbox”.</div>
-      </div>
+<div class="app">
+  <header class="app-header">
+    <div class="logo-pill">X</div>
+    <div class="title-wrap">
+      <h1>xyzaia.mail</h1>
+      <span>Quick inbox for <strong>@xyzaia.store</strong></span>
+      <span class="brand">powered by aiaxcart</span>
     </div>
+  </header>
 
-    <div class="footer">
-      xyzaia.store ©2025
+  <div class="input-row">
+    <div class="label">Email address</div>
+    <div class="input-shell">
+      <span class="domain-tag">@xyzaia.store</span>
+      <input
+        id="emailInput"
+        type="text"
+        placeholder="Type or generate an address"
+        autocomplete="off"
+      />
     </div>
   </div>
 
-  <script>
-    // 👉 PALITAN DITO NG SCRIPT URL MO
-    const API_URL = "https://script.google.com/macros/s/AKfycbztv0vgot_6It98tpzn5O7HXkzJyb6JM_VSZphikIS1qiynoQWAkGVqbeFF6zs6BAaN8w/exec";
+  <div class="btn-row">
+    <button class="btn-generate" id="btnGenerate">Generate</button>
+    <button class="btn-copy" id="btnCopy">Copy</button>
+    <button class="btn-inbox" id="btnInbox">Get inbox</button>
+  </div>
 
-    function getEmailInput() {
-      return document.getElementById("emailInput");
+  <p class="hint">Any address using <strong>@xyzaia.store</strong> will forward to your Gmail.</p>
+
+  <div class="divider"></div>
+
+  <div class="list-header">
+    <span>Messages</span>
+    <small id="currentFor">No address selected</small>
+  </div>
+
+  <div class="messages" id="messages"></div>
+
+  <footer>xyzaia.store ©2025</footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // === CONFIG: set this to your existing Apps Script URL ===
+  const API_URL = "https://script.google.com/macros/s/AKfycbztv0vgot_6It98tpzn5O7HXkzJyb6JM_VSZphikIS1qiynoQWAkGVqbeFF6zs6BAaN8w/exec"; // ?email= will be appended
+
+  const emailInput = document.getElementById("emailInput");
+  const btnGenerate = document.getElementById("btnGenerate");
+  const btnCopy = document.getElementById("btnCopy");
+  const btnInbox = document.getElementById("btnInbox");
+  const messagesEl = document.getElementById("messages");
+  const currentForEl = document.getElementById("currentFor");
+  const toastEl = document.getElementById("toast");
+
+  function showToast(text) {
+    toastEl.textContent = text;
+    toastEl.classList.add("show");
+    setTimeout(() => toastEl.classList.remove("show"), 1500);
+  }
+
+  function normalizeEmail(raw) {
+    if (!raw) return "";
+    raw = raw.trim();
+
+    // Already full address
+    if (raw.includes("@")) return raw.toLowerCase();
+
+    // Only left part -> attach domain
+    return (raw + "@xyzaia.store").toLowerCase();
+  }
+
+  function generateEmail() {
+    const prefixes = [
+      "user",
+      "member",
+      "client",
+      "account",
+      "cart",
+      "mail",
+      "access",
+      "login"
+    ];
+    const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+    const num = Math.floor(1000 + Math.random() * 9000); // 4 digits
+    const email = `${prefix}${num}@xyzaia.store`;
+
+    emailInput.value = email;
+    showToast("Generated.");
+    currentForEl.textContent = `Showing latest messages for ${email}`;
+  }
+
+  async function copyEmail() {
+    const value = normalizeEmail(emailInput.value);
+    if (!value) {
+      showToast("No email.");
+      return;
     }
 
-    function setStatus(message, type) {
-      const el = document.getElementById("status");
-      el.textContent = message || "";
-      el.className = "status" + (type ? " " + type : "");
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(value);
+      } else {
+        // Fallback for older browsers
+        const temp = document.createElement("textarea");
+        temp.value = value;
+        document.body.appendChild(temp);
+        temp.select();
+        document.execCommand("copy");
+        document.body.removeChild(temp);
+      }
+      showToast("Copied.");
+    } catch (e) {
+      showToast("No email.");
+    }
+  }
+
+  function renderMessages(email, items) {
+    currentForEl.textContent = `Showing latest ${items.length || 0} messages for ${email}`;
+
+    if (!items || items.length === 0) {
+      messagesEl.innerHTML = '<div class="message-empty">No messages yet.</div>';
+      return;
     }
 
-    function generateRandomEmail() {
-      const random = Math.random().toString(36).substring(2, 8);
-      const email = "user" + random + "@xyzaia.store";
-      getEmailInput().value = email;
-      setStatus("Generated: " + email, "success");
+    const html = items.map(msg => {
+      const from = (msg.from || "Unknown sender");
+      const subject = msg.subject || "(No subject)";
+      const snippet = msg.snippet || "";
+      const date = msg.date || "";
+      return `
+        <article class="message-card">
+          <div class="msg-from">From ${from}</div>
+          <div class="msg-subject">${subject}</div>
+          <div class="msg-snippet">${snippet}</div>
+          <div class="msg-meta">
+            <span>${date}</span>
+          </div>
+        </article>
+      `;
+    }).join("");
+
+    messagesEl.innerHTML = html;
+  }
+
+  async function fetchInbox() {
+    let email = normalizeEmail(emailInput.value);
+
+    if (!email) {
+      showToast("Enter email.");
+      return;
     }
 
-    function copyEmail() {
-      const input = getEmailInput();
-      const email = input.value.trim();
+    emailInput.value = email;
+    currentForEl.textContent = `Loading messages for ${email}…`;
+    messagesEl.innerHTML = "";
 
-      if (!email) {
-        setStatus("Enter or generate an email first.", "error");
-        return;
+    btnInbox.disabled = true;
+
+    try {
+      const url = `${API_URL}?email=${encodeURIComponent(email)}`;
+      const res = await fetch(url, { method: "GET" });
+
+      if (!res.ok) {
+        throw new Error("Request failed");
       }
 
-      navigator.clipboard?.writeText(email).then(
-        () => setStatus("Copied to clipboard ✔", "success"),
-        () => setStatus("Copy failed. Long-press the text and copy manually.", "error")
-      );
+      const data = await res.json();
+      // Expecting data.messages to be an array
+      const items = Array.isArray(data.messages) ? data.messages : [];
+      renderMessages(email, items);
+    } catch (err) {
+      console.error(err);
+      currentForEl.textContent = `Showing latest messages for ${email}`;
+      messagesEl.innerHTML =
+        '<div class="message-empty">Unable to load messages right now.</div>';
+    } finally {
+      btnInbox.disabled = false;
     }
+  }
 
-    async function getMessages() {
-      const input = getEmailInput();
-      let email = input.value.trim().toLowerCase();
+  // === Event bindings ===
+  btnGenerate.addEventListener("click", generateEmail);
+  btnCopy.addEventListener("click", copyEmail);
+  btnInbox.addEventListener("click", fetchInbox);
 
-      if (!email) {
-        setStatus("Enter or generate an email first.", "error");
-        return;
-      }
-
-      if (!email.includes("@")) {
-        email = email + "@xyzaia.store";
-        input.value = email;
-      }
-
-      if (!email.endsWith("@xyzaia.store")) {
-        setStatus("Use an @xyzaia.store email only.", "error");
-        return;
-      }
-
-      setStatus("Loading messages…", "");
-      renderMessages(null, true);
-
-      try {
-        const url = API_URL + "?email=" + encodeURIComponent(email);
-        const res = await fetch(url);
-        const data = await res.json();
-
-        if (data.error) {
-          setStatus(data.error, "error");
-          renderMessages([]);
-          return;
-        }
-
-        if (!data.messages || data.messages.length === 0) {
-          setStatus("No messages found yet for " + email, "success");
-          renderMessages([]);
-          return;
-        }
-
-        setStatus("Showing latest " + data.messages.length + " messages for " + email, "success");
-        renderMessages(data.messages);
-      } catch (err) {
-        console.error(err);
-        setStatus("Failed to load messages. Please try again.", "error");
-        renderMessages([]);
-      }
+  // Enter key = Get inbox
+  emailInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      fetchInbox();
     }
+  });
+</script>
 
-    function renderMessages(messages, loading) {
-      const box = document.getElementById("messages");
-      box.innerHTML = "";
-
-      if (loading) {
-        box.innerHTML = '<div class="msg-empty">Checking inbox…</div>';
-        return;
-      }
-
-      if (!messages || messages.length === 0) {
-        box.innerHTML = '<div class="msg-empty">No messages yet. Try again in a few seconds.</div>';
-        return;
-      }
-
-      messages.forEach((m) => {
-        const div = document.createElement("div");
-        div.className = "msg";
-
-        const date = new Date(m.date);
-        const shortDate =
-          date.toLocaleDateString(undefined, { month: "short", day: "numeric" }) +
-          " • " +
-          date.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
-
-        div.innerHTML = `
-          <div class="msg-subject">${escapeHtml(m.subject || "(no subject)")}</div>
-          <div class="msg-meta">From: ${escapeHtml(m.from || "")} • ${shortDate}</div>
-          <div class="msg-body">${escapeHtml(m.snippet || "")}</div>
-        `;
-
-        box.appendChild(div);
-      });
-    }
-
-    function escapeHtml(str) {
-      return String(str)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-    }
-  </script>
 </body>
 </html>
