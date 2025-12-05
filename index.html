@@ -10,7 +10,6 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
     body {
@@ -18,493 +17,458 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: radial-gradient(circle at top, #ffd9e8 0, #ffeef5 40%, #fff 100%);
-      color: #2a2a2a;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      background: radial-gradient(circle at top, #ffd9e8 0, #ffe9f2 40%, #ffeef7 70%, #ffeef7 100%);
+      color: #3d1b2f;
     }
 
     .app {
       width: 100%;
-      max-width: 520px;
-      background: #fff7fb;
-      border-radius: 30px;
-      padding: 22px 20px 18px;
-      box-shadow:
-        0 18px 45px rgba(255, 143, 188, 0.35),
-        0 0 0 1px rgba(255, 181, 210, 0.55);
-      border: 1px solid #ffe0f0;
+      max-width: 420px;
+      padding: 18px;
     }
 
-    .app-header {
+    .card {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 26px;
+      box-shadow: 0 18px 40px rgba(255, 137, 178, 0.35);
+      padding: 24px 22px 26px;
+      backdrop-filter: blur(9px);
+      border: 1px solid rgba(255, 151, 190, 0.4);
+    }
+
+    .header {
       display: flex;
+      gap: 14px;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 16px;
+      margin-bottom: 18px;
     }
 
     .logo-pill {
-      width: 44px;
-      height: 44px;
-      border-radius: 16px;
-      background: linear-gradient(135deg, #ff7fb0, #ffb0d8);
+      width: 52px;
+      height: 52px;
+      border-radius: 18px;
       display: flex;
       align-items: center;
       justify-content: center;
+      background: linear-gradient(135deg, #ff6fa5, #ff98c2);
       color: #fff;
+      font-size: 26px;
       font-weight: 700;
-      font-size: 22px;
-      flex-shrink: 0;
-      box-shadow: 0 8px 20px rgba(255, 143, 188, 0.55);
+      box-shadow: 0 10px 22px rgba(255, 111, 165, 0.5);
     }
 
-    .title-wrap {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .title-wrap h1 {
-      font-size: 20px;
-      font-weight: 700;
+    .title-main {
+      font-weight: 800;
       letter-spacing: 0.02em;
+      font-size: 20px;
+      margin-bottom: 2px;
     }
 
-    .title-wrap span {
+    .title-sub {
       font-size: 12px;
-      color: #87667b;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: #b23a73;
+      font-weight: 700;
     }
 
-    .title-wrap .brand {
+    .section-label {
       font-size: 11px;
-      text-transform: uppercase;
+      font-weight: 700;
       letter-spacing: 0.12em;
-      color: #f06292;
-      font-weight: 600;
-    }
-
-    .label {
-      font-size: 12px;
-      font-weight: 600;
-      color: #a05a86;
-      margin-bottom: 6px;
+      color: #b23a73;
       text-transform: uppercase;
-      letter-spacing: 0.09em;
+      margin-bottom: 6px;
+      margin-top: 8px;
     }
 
-    .input-row {
-      margin-bottom: 10px;
-    }
-
-    .input-shell {
-      position: relative;
+    .email-row {
       display: flex;
-      align-items: center;
-      background: #fff;
-      border-radius: 999px;
-      padding: 4px 10px 4px 16px;
-      border: 1px solid #ffd1ea;
-      box-shadow: inset 0 0 0 1px rgba(255, 214, 235, 0.7);
+      align-items: stretch;
+      gap: 4px;
+      margin-bottom: 14px;
     }
 
-    .input-shell span.domain-tag {
-      font-size: 11px;
-      font-weight: 600;
-      color: #f06292;
-      padding: 4px 9px;
-      border-radius: 999px;
-      background: #ffe7f3;
-      margin-right: 8px;
-      flex-shrink: 0;
-    }
-
-    .input-shell input {
-      border: none;
-      outline: none;
+    .email-row input {
       flex: 1;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 133, 185, 0.8);
+      padding: 10px 14px;
       font-size: 14px;
-      padding: 6px 2px;
-      background: transparent;
-      color: #333;
-      min-width: 0;
+      outline: none;
+      background: #fff9fc;
+      transition: box-shadow 0.15s ease, border-color 0.15s ease;
     }
 
-    .input-shell input::placeholder {
-      color: #c39ab4;
+    .email-row input:focus {
+      border-color: #ff6fa5;
+      box-shadow: 0 0 0 2px rgba(255, 169, 203, 0.55);
     }
 
-    .btn-row {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
+    .email-domain {
+      padding: 0 13px;
+      border-radius: 999px;
+      background: #ffeff6;
+      border: 1px solid rgba(255, 151, 190, 0.9);
+      display: inline-flex;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: #b23a73;
+      white-space: nowrap;
+    }
+
+    .controls {
+      display: flex;
       gap: 8px;
       margin-bottom: 14px;
     }
 
-    button {
-      border: none;
+    .btn {
+      flex: 1;
+      height: 38px;
       border-radius: 999px;
-      padding: 8px 10px;
+      border: none;
+      cursor: pointer;
       font-size: 13px;
       font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.06s ease, box-shadow 0.06s ease, background 0.12s;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      white-space: nowrap;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
     }
 
-    .btn-generate {
-      background: #fff;
-      color: #d81b60;
-      border: 1px solid #ffcfe4;
-      box-shadow: 0 0 0 1px rgba(255, 205, 230, 0.7);
+    .btn:active {
+      transform: translateY(1px);
+      box-shadow: none;
     }
 
-    .btn-copy {
-      background: #ffe7f3;
-      color: #ad1457;
-      border: 1px solid #ffc2df;
+    .btn-secondary {
+      background: #ffe6f2;
+      color: #b23a73;
+      box-shadow: 0 8px 18px rgba(255, 180, 206, 0.5);
     }
 
-    .btn-inbox {
-      background: linear-gradient(135deg, #ff5e9a, #ff85b8);
+    .btn-secondary:hover {
+      background: #ffd6ec;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #ff6fa5, #ff4590);
       color: #fff;
-      box-shadow: 0 9px 18px rgba(255, 115, 170, 0.55);
+      box-shadow: 0 10px 24px rgba(255, 73, 140, 0.7);
     }
 
-    button:active {
-      transform: translateY(1px) scale(0.99);
-      box-shadow: none;
+    .btn-primary:hover {
+      filter: brightness(1.03);
     }
 
-    .btn-inbox:disabled {
-      opacity: 0.5;
-      cursor: default;
-      box-shadow: none;
-    }
-
-    .hint {
-      font-size: 11px;
-      color: #a37590;
-      margin-bottom: 12px;
-    }
-
-    .divider {
-      height: 1px;
-      background: linear-gradient(to right, transparent, #ffd4eb, transparent);
-      margin-bottom: 10px;
-    }
-
-    .list-header {
+    .messages-header {
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: baseline;
       margin-bottom: 6px;
+      margin-top: 4px;
     }
 
-    .list-header span {
-      font-size: 12px;
-      color: #a05a86;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.09em;
-    }
-
-    .list-header small {
+    .messages-title {
       font-size: 11px;
-      color: #b488a2;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #b23a73;
     }
 
-    .messages {
-      max-height: 320px;
+    .messages-for {
+      font-size: 11px;
+      color: #ba5c86;
+      max-width: 60%;
+      text-align: right;
+      word-break: break-all;
+    }
+
+    .messages-box {
+      border-radius: 18px;
+      background: #fff7fb;
+      border: 1px dashed rgba(255, 151, 190, 0.7);
+      padding: 10px 11px;
+      max-height: 260px;
       overflow-y: auto;
-      padding-right: 4px;
+      font-size: 13px;
     }
 
     .message-empty {
+      color: #c37a9d;
       font-size: 13px;
-      color: #b0859c;
-      padding: 10px 2px 4px;
     }
 
-    .message-card {
-      background: #fff;
-      border-radius: 18px;
-      padding: 10px 12px 9px;
-      margin-bottom: 8px;
-      box-shadow:
-        0 8px 20px rgba(255, 175, 210, 0.40),
-        0 0 0 1px rgba(255, 207, 232, 0.9);
-      border: 1px solid #ffd6ea;
+    .message-item {
+      padding: 7px 0;
+      border-bottom: 1px solid rgba(255, 204, 225, 0.7);
     }
 
-    .msg-from {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.09em;
-      color: #c05a88;
-      margin-bottom: 4px;
-      font-weight: 600;
+    .message-item:last-child {
+      border-bottom: none;
     }
 
     .msg-subject {
-      font-size: 14px;
       font-weight: 600;
-      margin-bottom: 4px;
-      color: #333;
-    }
-
-    .msg-snippet {
-      font-size: 13px;
-      color: #7a5c70;
-      line-height: 1.3;
+      margin-bottom: 2px;
     }
 
     .msg-meta {
       font-size: 11px;
-      color: #b0849b;
-      margin-top: 6px;
-      display: flex;
-      justify-content: space-between;
+      color: #b47a96;
+      margin-bottom: 3px;
+    }
+
+    .msg-snippet {
+      font-size: 12px;
+      color: #7b3f5a;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 14px;
+      font-size: 11px;
+      color: #b47a96;
+    }
+
+    .footer span {
+      font-weight: 600;
     }
 
     .toast {
       position: fixed;
-      bottom: 16px;
       left: 50%;
-      transform: translateX(-50%) translateY(20px);
-      background: #333;
+      bottom: 18px;
+      transform: translateX(-50%);
+      background: rgba(60, 17, 39, 0.92);
       color: #fff;
-      padding: 7px 14px;
+      padding: 8px 16px;
       border-radius: 999px;
       font-size: 12px;
+      box-shadow: 0 10px 24px rgba(60, 17, 39, 0.7);
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.18s ease, transform 0.18s ease;
-      z-index: 50;
+      z-index: 20;
     }
 
     .toast.show {
       opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-
-    footer {
-      margin-top: 6px;
-      font-size: 10px;
-      text-align: center;
-      color: #c08aa4;
-    }
-
-    @media (max-width: 480px) {
-      .app {
-        border-radius: 24px;
-        padding: 18px 16px 14px;
-      }
-
-      .btn-row {
-        grid-template-columns: 1fr 1fr 1fr;
-      }
+      transform: translate(-50%, -4px);
     }
   </style>
 </head>
 <body>
+  <div class="app">
+    <div class="card">
+      <div class="header">
+        <div class="logo-pill">X</div>
+        <div>
+          <div class="title-main">xyzaia.mail</div>
+          <div class="title-sub">Quick inbox · POWERED BY AIAXCART</div>
+        </div>
+      </div>
 
-<div class="app">
-  <header class="app-header">
-    <div class="logo-pill">X</div>
-    <div class="title-wrap">
-      <h1>xyzaia.mail</h1>
-      <span>Quick inbox for <strong>@xyzaia.store</strong></span>
-      <span class="brand">powered by aiaxcart</span>
+      <div class="section-label">Mail address</div>
+      <div class="email-row">
+        <input
+          id="usernameInput"
+          type="text"
+          placeholder="username"
+          autocomplete="off"
+        />
+        <div class="email-domain">@xyzaia.store</div>
+      </div>
+
+      <div class="controls">
+        <button class="btn btn-secondary" id="btnGenerate">Generate</button>
+        <button class="btn btn-secondary" id="btnCopy">Copy</button>
+        <button class="btn btn-primary" id="btnInbox">Get inbox</button>
+      </div>
+
+      <div class="messages-header">
+        <div class="messages-title">Messages</div>
+        <div class="messages-for" id="messagesFor">No email selected</div>
+      </div>
+
+      <div class="messages-box" id="messagesBox">
+        <div class="message-empty">No messages yet.</div>
+      </div>
+
+      <div class="footer">
+        xyzaia.store ©<span>2025</span>
+      </div>
     </div>
-  </header>
-
-  <div class="input-row">
-    <div class="label">Email address</div>
-    <div class="input-shell">
-      <span class="domain-tag">@xyzaia.store</span>
-      <input
-        id="emailInput"
-        type="text"
-        placeholder="Type or generate an address"
-        autocomplete="off"
-      />
-    </div>
   </div>
 
-  <div class="btn-row">
-    <button class="btn-generate" id="btnGenerate">Generate</button>
-    <button class="btn-copy" id="btnCopy">Copy</button>
-    <button class="btn-inbox" id="btnInbox">Get inbox</button>
-  </div>
+  <div class="toast" id="toast"></div>
 
-  <p class="hint">Any address using <strong>@xyzaia.store</strong> will forward to your Gmail.</p>
+  <script>
+    // CHANGE THIS to your own Apps Script Web App URL
+    const API_URL = "https://script.google.com/macros/s/AKfycbztv0vgot_6It98tpzn5O7HXkzJyb6JM_VSZphikIS1qiynoQWAkGVqbeFF6zs6BAaN8w/exec";
+    const DOMAIN = "xyzaia.store";
 
-  <div class="divider"></div>
+    const usernameInput = document.getElementById("usernameInput");
+    const btnGenerate = document.getElementById("btnGenerate");
+    const btnCopy = document.getElementById("btnCopy");
+    const btnInbox = document.getElementById("btnInbox");
+    const messagesBox = document.getElementById("messagesBox");
+    const messagesFor = document.getElementById("messagesFor");
+    const toastEl = document.getElementById("toast");
 
-  <div class="list-header">
-    <span>Messages</span>
-    <small id="currentFor">No address selected</small>
-  </div>
-
-  <div class="messages" id="messages"></div>
-
-  <footer>xyzaia.store ©2025</footer>
-</div>
-
-<div class="toast" id="toast"></div>
-
-<script>
-  // === CONFIG: set this to your existing Apps Script URL ===
-  const API_URL = "https://script.google.com/macros/s/AKfycbztv0vgot_6It98tpzn5O7HXkzJyb6JM_VSZphikIS1qiynoQWAkGVqbeFF6zs6BAaN8w/exec"; // ?email= will be appended
-
-  const emailInput = document.getElementById("emailInput");
-  const btnGenerate = document.getElementById("btnGenerate");
-  const btnCopy = document.getElementById("btnCopy");
-  const btnInbox = document.getElementById("btnInbox");
-  const messagesEl = document.getElementById("messages");
-  const currentForEl = document.getElementById("currentFor");
-  const toastEl = document.getElementById("toast");
-
-  function showToast(text) {
-    toastEl.textContent = text;
-    toastEl.classList.add("show");
-    setTimeout(() => toastEl.classList.remove("show"), 1500);
-  }
-
-  function normalizeEmail(raw) {
-    if (!raw) return "";
-    raw = raw.trim();
-
-    // Already full address
-    if (raw.includes("@")) return raw.toLowerCase();
-
-    // Only left part -> attach domain
-    return (raw + "@xyzaia.store").toLowerCase();
-  }
-
-  function generateEmail() {
-    const prefixes = [
-      "user",
-      "member",
-      "client",
-      "account",
-      "cart",
-      "mail",
-      "access",
-      "login"
-    ];
-    const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
-    const num = Math.floor(1000 + Math.random() * 9000); // 4 digits
-    const email = `${prefix}${num}@xyzaia.store`;
-
-    emailInput.value = email;
-    showToast("Generated.");
-    currentForEl.textContent = `Showing latest messages for ${email}`;
-  }
-
-  async function copyEmail() {
-    const value = normalizeEmail(emailInput.value);
-    if (!value) {
-      showToast("No email.");
-      return;
+    function showToast(text) {
+      toastEl.textContent = text;
+      toastEl.classList.add("show");
+      setTimeout(() => toastEl.classList.remove("show"), 2000);
     }
 
-    try {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(value);
-      } else {
-        // Fallback for older browsers
-        const temp = document.createElement("textarea");
-        temp.value = value;
-        document.body.appendChild(temp);
-        temp.select();
-        document.execCommand("copy");
-        document.body.removeChild(temp);
-      }
-      showToast("Copied.");
-    } catch (e) {
-      showToast("No email.");
-    }
-  }
+    function normalizeUsername(value) {
+      if (!value) return "";
+      let v = value.trim().toLowerCase();
 
-  function renderMessages(email, items) {
-    currentForEl.textContent = `Showing latest ${items.length || 0} messages for ${email}`;
-
-    if (!items || items.length === 0) {
-      messagesEl.innerHTML = '<div class="message-empty">No messages yet.</div>';
-      return;
-    }
-
-    const html = items.map(msg => {
-      const from = (msg.from || "Unknown sender");
-      const subject = msg.subject || "(No subject)";
-      const snippet = msg.snippet || "";
-      const date = msg.date || "";
-      return `
-        <article class="message-card">
-          <div class="msg-from">From ${from}</div>
-          <div class="msg-subject">${subject}</div>
-          <div class="msg-snippet">${snippet}</div>
-          <div class="msg-meta">
-            <span>${date}</span>
-          </div>
-        </article>
-      `;
-    }).join("");
-
-    messagesEl.innerHTML = html;
-  }
-
-  async function fetchInbox() {
-    let email = normalizeEmail(emailInput.value);
-
-    if (!email) {
-      showToast("Enter email.");
-      return;
-    }
-
-    emailInput.value = email;
-    currentForEl.textContent = `Loading messages for ${email}…`;
-    messagesEl.innerHTML = "";
-
-    btnInbox.disabled = true;
-
-    try {
-      const url = `${API_URL}?email=${encodeURIComponent(email)}`;
-      const res = await fetch(url, { method: "GET" });
-
-      if (!res.ok) {
-        throw new Error("Request failed");
+      // kung may nag-paste na may @domain, tanggalin domain part
+      const atIndex = v.indexOf("@");
+      if (atIndex !== -1) {
+        v = v.slice(0, atIndex);
       }
 
-      const data = await res.json();
-      // Expecting data.messages to be an array
-      const items = Array.isArray(data.messages) ? data.messages : [];
-      renderMessages(email, items);
-    } catch (err) {
-      console.error(err);
-      currentForEl.textContent = `Showing latest messages for ${email}`;
-      messagesEl.innerHTML =
-        '<div class="message-empty">Unable to load messages right now.</div>';
-    } finally {
-      btnInbox.disabled = false;
+      // payagan letters, numbers, dot, dash, underscore
+      v = v.replace(/[^a-z0-9._-]/g, "");
+      return v;
     }
-  }
 
-  // === Event bindings ===
-  btnGenerate.addEventListener("click", generateEmail);
-  btnCopy.addEventListener("click", copyEmail);
-  btnInbox.addEventListener("click", fetchInbox);
-
-  // Enter key = Get inbox
-  emailInput.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      fetchInbox();
+    function getFullEmail() {
+      const username = normalizeUsername(usernameInput.value);
+      if (!username) return "";
+      return `${username}@${DOMAIN}`;
     }
-  });
-</script>
 
+    function updateMessagesFor() {
+      const email = getFullEmail();
+      messagesFor.textContent = email ? email : "No email selected";
+    }
+
+    usernameInput.addEventListener("input", () => {
+      const norm = normalizeUsername(usernameInput.value);
+      if (usernameInput.value !== norm) {
+        const pos = usernameInput.selectionStart;
+        usernameInput.value = norm;
+        usernameInput.selectionStart = usernameInput.selectionEnd = pos - 1 >= 0 ? pos - 1 : 0;
+      }
+      updateMessagesFor();
+    });
+
+    function generateUsername() {
+      const prefix = "aiax";
+      const num = Math.floor(1000 + Math.random() * 9000);
+      const username = `${prefix}${num}`;
+      usernameInput.value = username;
+      updateMessagesFor();
+    }
+
+    async function copyEmail() {
+      const email = getFullEmail();
+      if (!email) {
+        showToast("Enter or generate a username first.");
+        return;
+      }
+
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(email);
+        } else {
+          // fallback
+          const ta = document.createElement("textarea");
+          ta.value = email;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand("copy");
+          document.body.removeChild(ta);
+        }
+        showToast("Email copied.");
+      } catch (e) {
+        console.error(e);
+        showToast("Unable to copy.");
+      }
+    }
+
+    function renderMessages(list) {
+      messagesBox.innerHTML = "";
+      if (!list || list.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "message-empty";
+        empty.textContent = "No messages yet.";
+        messagesBox.appendChild(empty);
+        return;
+      }
+
+      list.forEach((msg) => {
+        const item = document.createElement("div");
+        item.className = "message-item";
+
+        const subject = document.createElement("div");
+        subject.className = "msg-subject";
+        subject.textContent = msg.subject || "(no subject)";
+
+        const meta = document.createElement("div");
+        meta.className = "msg-meta";
+        meta.textContent = `${msg.from || ""} • ${msg.date || ""}`;
+
+        const snippet = document.createElement("div");
+        snippet.className = "msg-snippet";
+        snippet.textContent = msg.snippet || "";
+
+        item.appendChild(subject);
+        item.appendChild(meta);
+        item.appendChild(snippet);
+        messagesBox.appendChild(item);
+      });
+    }
+
+    async function fetchInbox() {
+      const email = getFullEmail();
+      if (!email) {
+        showToast("Enter or generate a username first.");
+        return;
+      }
+
+      updateMessagesFor();
+      renderMessages([]);
+      messagesBox.innerHTML =
+        '<div class="message-empty">Loading messages…</div>';
+
+      try {
+        const url = `${API_URL}?email=${encodeURIComponent(email)}`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (data.error) {
+          showToast("Error loading messages.");
+          renderMessages([]);
+          return;
+        }
+
+        renderMessages(data.messages || []);
+        if (!data.messages || data.messages.length === 0) {
+          showToast("No messages found.");
+        }
+      } catch (err) {
+        console.error(err);
+        showToast("Network error.");
+        renderMessages([]);
+      }
+    }
+
+    btnGenerate.addEventListener("click", generateUsername);
+    btnCopy.addEventListener("click", copyEmail);
+    btnInbox.addEventListener("click", fetchInbox);
+
+    // initial state
+    updateMessagesFor();
+  </script>
 </body>
 </html>
