@@ -199,9 +199,10 @@
       background: #fff7fb;
       border: 1px dashed rgba(255, 151, 190, 0.7);
       padding: 15px 14px;
-      max-height: 450px;
+      max-height: 400px;
       overflow-y: auto;
       font-size: 13px;
+      min-height: 150px;
     }
 
     .message-empty {
@@ -280,7 +281,6 @@
       word-break: break-word;
       overflow-wrap: break-word;
       max-width: 100%;
-      overflow: visible;
     }
 
     .msg-full-content.show {
@@ -292,15 +292,6 @@
       text-decoration: underline;
       word-break: break-all;
       overflow-wrap: anywhere;
-    }
-
-    .msg-full-content pre {
-      white-space: pre-wrap;
-      word-break: break-word;
-      overflow-wrap: break-word;
-      font-family: inherit;
-      max-width: 100%;
-      overflow: auto;
     }
 
     .show-full-btn {
@@ -485,6 +476,9 @@
     const messagesFor = document.getElementById("messagesFor");
     const toastEl = document.getElementById("toast");
 
+    // Store to keep track of expanded messages
+    let expandedMessageIds = new Set();
+
     function showToast(text) {
       toastEl.textContent = text;
       toastEl.classList.add("show");
@@ -584,60 +578,22 @@
       return match ? (match[1] || match[2] || match[3] || from).trim() : from;
     }
 
-    function createMessageElement(msg) {
-      const item = document.createElement("div");
-      item.className = "message-item";
-
-      const sender = extractSender(msg.from);
-      const date = formatDate(msg.date);
-      const subject = msg.subject || "(no subject)";
+    // Function to handle message expansion
+    function toggleMessageExpansion(button, messageId) {
+      const contentDiv = button.nextElementSibling;
+      const icon = button.querySelector('i');
       
-      // Get full content - combine all possible fields
-      const fullContent = msg.body || msg.snippet || "";
-      
-      // Create preview (first 150 chars)
-      const preview = fullContent.length > 150 
-        ? fullContent.substring(0, 150) + "..." 
-        : fullContent;
-
-      // Process full content to make URLs clickable and handle long text
-      let fullContentHtml = fullContent
-        .replace(/\n/g, '<br>')
-        .replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
-
-      // Create HTML structure
-      item.innerHTML = `
-        <div class="msg-header">
-          <div class="msg-sender">${sender}</div>
-          <div class="msg-date">${date}</div>
-        </div>
-        <div class="msg-subject">${subject}</div>
-        <div class="msg-preview">${preview}</div>
-        <button class="show-full-btn">
-          <i class="fas fa-chevron-down"></i>
-          Show Full Message
-        </button>
-        <div class="msg-full-content">${fullContentHtml}</div>
-      `;
-
-      // Add click event to the button
-      const showBtn = item.querySelector('.show-full-btn');
-      const fullContentDiv = item.querySelector('.msg-full-content');
-      const icon = showBtn.querySelector('i');
-
-      showBtn.addEventListener('click', () => {
-        if (fullContentDiv.classList.contains('show')) {
-          fullContentDiv.classList.remove('show');
-          icon.className = "fas fa-chevron-down";
-          showBtn.innerHTML = '<i class="fas fa-chevron-down"></i> Show Full Message';
-        } else {
-          fullContentDiv.classList.add('show');
-          icon.className = "fas fa-chevron-up";
-          showBtn.innerHTML = '<i class="fas fa-chevron-up"></i> Hide Full Message';
-        }
-      });
-
-      return item;
+      if (contentDiv.classList.contains('show')) {
+        contentDiv.classList.remove('show');
+        expandedMessageIds.delete(messageId);
+        icon.className = "fas fa-chevron-down";
+        button.innerHTML = '<i class="fas fa-chevron-down"></i> Show Full Message';
+      } else {
+        contentDiv.classList.add('show');
+        expandedMessageIds.add(messageId);
+        icon.className = "fas fa-chevron-up";
+        button.innerHTML = '<i class="fas fa-chevron-up"></i> Hide Full Message';
+      }
     }
 
     function renderMessages(messages) {
@@ -655,15 +611,60 @@
       const messagesList = document.createElement("div");
       messagesList.className = "messages-list";
 
-      // TAMA NA: Get ONLY THE 3 MOST RECENT MESSAGES
-      // API returns oldest first, so we need to get the last 3
-      // For example: if we have messages [1,2,3,4,5,6], we want [4,5,6]
-      const recentMessages = messages.slice(-3);
+      // Get the 3 most recent messages (FIFO for latest)
+      // Assuming messages are already sorted by date (oldest first)
+      const recentMessages = messages.slice(-3).reverse();
       
-      // Reverse to show newest first
-      recentMessages.reverse().forEach((msg) => {
-        const messageElement = createMessageElement(msg);
-        messagesList.appendChild(messageElement);
+      // Add messages to list
+      recentMessages.forEach((msg, index) => {
+        const item = document.createElement("div");
+        item.className = "message-item";
+
+        const sender = extractSender(msg.from);
+        const date = formatDate(msg.date);
+        const subject = msg.subject || "(no subject)";
+        
+        // Get full content
+        const fullContent = msg.body || msg.snippet || "";
+        
+        // Create preview (first 150 chars)
+        const preview = fullContent.length > 150 
+          ? fullContent.substring(0, 150) + "..." 
+          : fullContent;
+
+        // Create a unique ID for this message
+        const messageId = msg.id || `msg-${index}-${Date.now()}`;
+        
+        // Check if this message was previously expanded
+        const isExpanded = expandedMessageIds.has(messageId);
+        
+        // Make URLs clickable
+        let fullContentHtml = fullContent
+          .replace(/\n/g, '<br>')
+          .replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
+
+        // Create HTML structure
+        item.innerHTML = `
+          <div class="msg-header">
+            <div class="msg-sender">${sender}</div>
+            <div class="msg-date">${date}</div>
+          </div>
+          <div class="msg-subject">${subject}</div>
+          <div class="msg-preview">${preview}</div>
+          <button class="show-full-btn">
+            <i class="fas fa-chevron-${isExpanded ? 'up' : 'down'}"></i>
+            ${isExpanded ? 'Hide Full Message' : 'Show Full Message'}
+          </button>
+          <div class="msg-full-content ${isExpanded ? 'show' : ''}">${fullContentHtml}</div>
+        `;
+
+        // Add click event to the button
+        const showBtn = item.querySelector('.show-full-btn');
+        showBtn.addEventListener('click', () => {
+          toggleMessageExpansion(showBtn, messageId);
+        });
+
+        messagesList.appendChild(item);
       });
 
       messagesBox.appendChild(messagesList);
@@ -706,7 +707,7 @@
         if (messages.length === 0) {
           showToast("No messages found.");
         } else {
-          showToast(`Loaded ${messages.length} messages (showing 3 most recent)`);
+          showToast(`Loaded ${messages.length} messages`);
         }
         
         renderMessages(messages);
