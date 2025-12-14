@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>xyzaia.mail — Quick inbox</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
     * {
@@ -21,16 +22,17 @@
         sans-serif;
       background: radial-gradient(circle at top, #ffd9e8 0, #ffe9f2 40%, #ffeef7 70%, #ffeef7 100%);
       color: #3d1b2f;
+      padding: 20px;
     }
 
     .app {
       width: 100%;
-      max-width: 420px;
-      padding: 18px;
+      max-width: 480px;
+      min-width: 320px;
     }
 
     .card {
-      background: rgba(255, 255, 255, 0.9);
+      background: rgba(255, 255, 255, 0.95);
       border-radius: 26px;
       box-shadow: 0 18px 40px rgba(255, 137, 178, 0.35);
       padding: 24px 22px 26px;
@@ -100,6 +102,7 @@
       outline: none;
       background: #fff9fc;
       transition: box-shadow 0.15s ease, border-color 0.15s ease;
+      min-width: 0;
     }
 
     .email-row input:focus {
@@ -118,6 +121,7 @@
       font-weight: 600;
       color: #b23a73;
       white-space: nowrap;
+      flex-shrink: 0;
     }
 
     .controls {
@@ -186,14 +190,16 @@
       max-width: 60%;
       text-align: right;
       word-break: break-all;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .messages-box {
       border-radius: 18px;
       background: #fff7fb;
       border: 1px dashed rgba(255, 151, 190, 0.7);
-      padding: 10px 11px;
-      max-height: 260px;
+      padding: 15px 14px;
+      max-height: 450px;
       overflow-y: auto;
       font-size: 13px;
     }
@@ -201,31 +207,134 @@
     .message-empty {
       color: #c37a9d;
       font-size: 13px;
+      text-align: center;
+      padding: 30px 20px;
+    }
+
+    .messages-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
     }
 
     .message-item {
-      padding: 7px 0;
-      border-bottom: 1px solid rgba(255, 204, 225, 0.7);
+      background: white;
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 4px 12px rgba(255, 180, 206, 0.2);
+      border: 1px solid rgba(255, 204, 225, 0.7);
     }
 
-    .message-item:last-child {
-      border-bottom: none;
+    .msg-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .msg-sender {
+      font-weight: 700;
+      color: #3d1b2f;
+      font-size: 14px;
+    }
+
+    .msg-date {
+      font-size: 11px;
+      color: #b47a96;
+      background: #fff7fb;
+      padding: 4px 10px;
+      border-radius: 12px;
     }
 
     .msg-subject {
+      font-size: 15px;
       font-weight: 600;
-      margin-bottom: 2px;
+      color: #b23a73;
+      margin-bottom: 10px;
+      line-height: 1.4;
     }
 
-    .msg-meta {
-      font-size: 11px;
-      color: #b47a96;
-      margin-bottom: 3px;
-    }
-
-    .msg-snippet {
-      font-size: 12px;
+    .msg-preview {
       color: #7b3f5a;
+      line-height: 1.5;
+      margin-bottom: 12px;
+      font-size: 13px;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      word-break: break-word;
+    }
+
+    .msg-full-content {
+      display: none;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px dashed rgba(255, 151, 190, 0.5);
+      color: #3d1b2f;
+      line-height: 1.6;
+      font-size: 13px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-wrap: break-word;
+      max-width: 100%;
+      overflow: visible;
+    }
+
+    .msg-full-content.show {
+      display: block;
+    }
+
+    .msg-full-content a {
+      color: #ff6fa5;
+      text-decoration: underline;
+      word-break: break-all;
+      overflow-wrap: anywhere;
+    }
+
+    .msg-full-content pre {
+      white-space: pre-wrap;
+      word-break: break-word;
+      overflow-wrap: break-word;
+      font-family: inherit;
+      max-width: 100%;
+      overflow: auto;
+    }
+
+    .show-full-btn {
+      background: #ffe6f2;
+      border: none;
+      color: #b23a73;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.3s;
+      margin-top: 5px;
+    }
+
+    .show-full-btn:hover {
+      background: #ffd6ec;
+    }
+
+    .show-full-btn i {
+      font-size: 10px;
+    }
+
+    .limit-notice {
+      text-align: center;
+      font-size: 11px;
+      color: #b23a73;
+      background: #ffe6f2;
+      padding: 8px;
+      border-radius: 12px;
+      margin-top: 12px;
+      border: 1px dashed rgba(255, 151, 190, 0.5);
     }
 
     .footer {
@@ -259,6 +368,63 @@
     .toast.show {
       opacity: 1;
       transform: translate(-50%, -4px);
+    }
+
+    @media (max-width: 600px) {
+      .app {
+        max-width: 100%;
+        padding: 10px;
+      }
+      
+      .card {
+        padding: 20px;
+      }
+      
+      .controls {
+        flex-wrap: nowrap;
+      }
+      
+      .btn {
+        font-size: 12px;
+        padding: 0 8px;
+      }
+      
+      .email-domain {
+        font-size: 12px;
+        padding: 0 10px;
+      }
+      
+      .messages-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+      }
+      
+      .messages-for {
+        max-width: 100%;
+        text-align: left;
+        font-size: 10px;
+      }
+      
+      .message-item {
+        padding: 14px;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .controls {
+        flex-wrap: wrap;
+      }
+      
+      .btn {
+        min-width: calc(33.333% - 6px);
+        font-size: 11px;
+      }
+      
+      .email-domain {
+        font-size: 11px;
+        padding: 0 8px;
+      }
     }
   </style>
 </head>
@@ -308,7 +474,6 @@
   <div class="toast" id="toast"></div>
 
   <script>
-    // CHANGE THIS to your own Apps Script Web App URL
     const API_URL = "https://script.google.com/macros/s/AKfycbztv0vgot_6It98tpzn5O7HXkzJyb6JM_VSZphikIS1qiynoQWAkGVqbeFF6zs6BAaN8w/exec";
     const DOMAIN = "xyzaia.store";
 
@@ -329,14 +494,10 @@
     function normalizeUsername(value) {
       if (!value) return "";
       let v = value.trim().toLowerCase();
-
-      // kung may nag-paste na may @domain, tanggalin domain part
       const atIndex = v.indexOf("@");
       if (atIndex !== -1) {
         v = v.slice(0, atIndex);
       }
-
-      // payagan letters, numbers, dot, dash, underscore
       v = v.replace(/[^a-z0-9._-]/g, "");
       return v;
     }
@@ -355,17 +516,22 @@
     usernameInput.addEventListener("input", () => {
       const norm = normalizeUsername(usernameInput.value);
       if (usernameInput.value !== norm) {
-        const pos = usernameInput.selectionStart;
         usernameInput.value = norm;
-        usernameInput.selectionStart = usernameInput.selectionEnd = pos - 1 >= 0 ? pos - 1 : 0;
       }
       updateMessagesFor();
     });
 
+    function generateRandomString() {
+      const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+      let result = '';
+      for (let i = 0; i < 8; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return result;
+    }
+
     function generateUsername() {
-      const prefix = "aiax";
-      const num = Math.floor(1000 + Math.random() * 9000);
-      const username = `${prefix}${num}`;
+      const username = generateRandomString();
       usernameInput.value = username;
       updateMessagesFor();
     }
@@ -381,7 +547,6 @@
         if (navigator.clipboard && navigator.clipboard.writeText) {
           await navigator.clipboard.writeText(email);
         } else {
-          // fallback
           const ta = document.createElement("textarea");
           ta.value = email;
           document.body.appendChild(ta);
@@ -396,9 +561,89 @@
       }
     }
 
-    function renderMessages(list) {
+    function formatDate(dateString) {
+      if (!dateString) return "Recently";
+      try {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', {
+          month: '2-digit',
+          day: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true
+        });
+      } catch (e) {
+        return dateString;
+      }
+    }
+
+    function extractSender(from) {
+      if (!from) return "Unknown Sender";
+      const match = from.match(/^"?(.+?)"?\s*<|^(.+?)\s*<|^(.+?)$/);
+      return match ? (match[1] || match[2] || match[3] || from).trim() : from;
+    }
+
+    function createMessageElement(msg) {
+      const item = document.createElement("div");
+      item.className = "message-item";
+
+      const sender = extractSender(msg.from);
+      const date = formatDate(msg.date);
+      const subject = msg.subject || "(no subject)";
+      
+      // Get full content - combine all possible fields
+      const fullContent = msg.body || msg.snippet || "";
+      
+      // Create preview (first 150 chars)
+      const preview = fullContent.length > 150 
+        ? fullContent.substring(0, 150) + "..." 
+        : fullContent;
+
+      // Process full content to make URLs clickable and handle long text
+      let fullContentHtml = fullContent
+        .replace(/\n/g, '<br>')
+        .replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
+
+      // Create HTML structure
+      item.innerHTML = `
+        <div class="msg-header">
+          <div class="msg-sender">${sender}</div>
+          <div class="msg-date">${date}</div>
+        </div>
+        <div class="msg-subject">${subject}</div>
+        <div class="msg-preview">${preview}</div>
+        <button class="show-full-btn">
+          <i class="fas fa-chevron-down"></i>
+          Show Full Message
+        </button>
+        <div class="msg-full-content">${fullContentHtml}</div>
+      `;
+
+      // Add click event to the button
+      const showBtn = item.querySelector('.show-full-btn');
+      const fullContentDiv = item.querySelector('.msg-full-content');
+      const icon = showBtn.querySelector('i');
+
+      showBtn.addEventListener('click', () => {
+        if (fullContentDiv.classList.contains('show')) {
+          fullContentDiv.classList.remove('show');
+          icon.className = "fas fa-chevron-down";
+          showBtn.innerHTML = '<i class="fas fa-chevron-down"></i> Show Full Message';
+        } else {
+          fullContentDiv.classList.add('show');
+          icon.className = "fas fa-chevron-up";
+          showBtn.innerHTML = '<i class="fas fa-chevron-up"></i> Hide Full Message';
+        }
+      });
+
+      return item;
+    }
+
+    function renderMessages(messages) {
       messagesBox.innerHTML = "";
-      if (!list || list.length === 0) {
+      
+      if (!messages || messages.length === 0) {
         const empty = document.createElement("div");
         empty.className = "message-empty";
         empty.textContent = "No messages yet.";
@@ -406,27 +651,30 @@
         return;
       }
 
-      list.forEach((msg) => {
-        const item = document.createElement("div");
-        item.className = "message-item";
+      // Create messages list container
+      const messagesList = document.createElement("div");
+      messagesList.className = "messages-list";
 
-        const subject = document.createElement("div");
-        subject.className = "msg-subject";
-        subject.textContent = msg.subject || "(no subject)";
-
-        const meta = document.createElement("div");
-        meta.className = "msg-meta";
-        meta.textContent = `${msg.from || ""} • ${msg.date || ""}`;
-
-        const snippet = document.createElement("div");
-        snippet.className = "msg-snippet";
-        snippet.textContent = msg.snippet || "";
-
-        item.appendChild(subject);
-        item.appendChild(meta);
-        item.appendChild(snippet);
-        messagesBox.appendChild(item);
+      // TAMA NA: Get ONLY THE 3 MOST RECENT MESSAGES
+      // API returns oldest first, so we need to get the last 3
+      // For example: if we have messages [1,2,3,4,5,6], we want [4,5,6]
+      const recentMessages = messages.slice(-3);
+      
+      // Reverse to show newest first
+      recentMessages.reverse().forEach((msg) => {
+        const messageElement = createMessageElement(msg);
+        messagesList.appendChild(messageElement);
       });
+
+      messagesBox.appendChild(messagesList);
+
+      // Add limit notice if there are more than 3 messages
+      if (messages.length > 3) {
+        const notice = document.createElement("div");
+        notice.className = "limit-notice";
+        notice.innerHTML = `<i class="fas fa-info-circle"></i> Showing 3 most recent of ${messages.length} total messages`;
+        messagesBox.appendChild(notice);
+      }
     }
 
     async function fetchInbox() {
@@ -437,9 +685,7 @@
       }
 
       updateMessagesFor();
-      renderMessages([]);
-      messagesBox.innerHTML =
-        '<div class="message-empty">Loading messages…</div>';
+      messagesBox.innerHTML = '<div class="message-empty">Loading messages…</div>';
 
       try {
         const url = `${API_URL}?email=${encodeURIComponent(email)}`;
@@ -452,12 +698,20 @@
           return;
         }
 
-        renderMessages(data.messages || []);
-        if (!data.messages || data.messages.length === 0) {
+        // Get messages from response
+        const messages = Array.isArray(data.messages) ? data.messages : 
+                        Array.isArray(data) ? data : 
+                        [];
+        
+        if (messages.length === 0) {
           showToast("No messages found.");
+        } else {
+          showToast(`Loaded ${messages.length} messages (showing 3 most recent)`);
         }
+        
+        renderMessages(messages);
       } catch (err) {
-        console.error(err);
+        console.error("Fetch error:", err);
         showToast("Network error.");
         renderMessages([]);
       }
@@ -467,8 +721,16 @@
     btnCopy.addEventListener("click", copyEmail);
     btnInbox.addEventListener("click", fetchInbox);
 
-    // initial state
+    // Initial state
     updateMessagesFor();
+    generateUsername();
+    
+    // Auto-check inbox after 1 second
+    setTimeout(() => {
+      if (getFullEmail()) {
+        fetchInbox();
+      }
+    }, 1000);
   </script>
 </body>
 </html>
