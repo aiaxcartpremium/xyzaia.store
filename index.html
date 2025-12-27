@@ -597,87 +597,93 @@
     }
 
     function renderMessages(messages) {
-      messagesBox.innerHTML = "";
-      
-      if (!messages || messages.length === 0) {
-        const empty = document.createElement("div");
-        empty.className = "message-empty";
-        empty.textContent = "No messages yet.";
-        messagesBox.appendChild(empty);
-        return;
-      }
+  messagesBox.innerHTML = "";
+  
+  if (!messages || messages.length === 0) {
+    const empty = document.createElement("div");
+    empty.className = "message-empty";
+    empty.textContent = "No messages yet.";
+    messagesBox.appendChild(empty);
+    return;
+  }
 
-      // Create messages list container
-      const messagesList = document.createElement("div");
-      messagesList.className = "messages-list";
+  // Create messages list container
+  const messagesList = document.createElement("div");
+  messagesList.className = "messages-list";
 
-      // Get the 3 most recent messages (FIFO for latest)
-      // Assuming messages are already sorted by date (oldest first)
-      const recentMessages = messages.slice(-3).reverse();
-      
-      // Add messages to list
-      recentMessages.forEach((msg, index) => {
-        const item = document.createElement("div");
-        item.className = "message-item";
+  // FIXED: Get the 3 most recent messages (newest first)
+  // Sort messages by date in descending order (newest to oldest)
+  const sortedMessages = [...messages].sort((a, b) => {
+    const dateA = a.date ? new Date(a.date).getTime() : 0;
+    const dateB = b.date ? new Date(b.date).getTime() : 0;
+    return dateB - dateA; // Descending order
+  });
 
-        const sender = extractSender(msg.from);
-        const date = formatDate(msg.date);
-        const subject = msg.subject || "(no subject)";
-        
-        // Get full content
-        const fullContent = msg.body || msg.snippet || "";
-        
-        // Create preview (first 150 chars)
-        const preview = fullContent.length > 150 
-          ? fullContent.substring(0, 150) + "..." 
-          : fullContent;
+  // Take only the first 3 (most recent) messages
+  const recentMessages = sortedMessages.slice(0, 3);
+  
+  // Add messages to list
+  recentMessages.forEach((msg, index) => {
+    const item = document.createElement("div");
+    item.className = "message-item";
 
-        // Create a unique ID for this message
-        const messageId = msg.id || `msg-${index}-${Date.now()}`;
-        
-        // Check if this message was previously expanded
-        const isExpanded = expandedMessageIds.has(messageId);
-        
-        // Make URLs clickable
-        let fullContentHtml = fullContent
-          .replace(/\n/g, '<br>')
-          .replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
+    const sender = extractSender(msg.from);
+    const date = formatDate(msg.date);
+    const subject = msg.subject || "(no subject)";
+    
+    // Get full content
+    const fullContent = msg.body || msg.snippet || "";
+    
+    // Create preview (first 150 chars)
+    const preview = fullContent.length > 150 
+      ? fullContent.substring(0, 150) + "..." 
+      : fullContent;
 
-        // Create HTML structure
-        item.innerHTML = `
-          <div class="msg-header">
-            <div class="msg-sender">${sender}</div>
-            <div class="msg-date">${date}</div>
-          </div>
-          <div class="msg-subject">${subject}</div>
-          <div class="msg-preview">${preview}</div>
-          <button class="show-full-btn">
-            <i class="fas fa-chevron-${isExpanded ? 'up' : 'down'}"></i>
-            ${isExpanded ? 'Hide Full Message' : 'Show Full Message'}
-          </button>
-          <div class="msg-full-content ${isExpanded ? 'show' : ''}">${fullContentHtml}</div>
-        `;
+    // Create a unique ID for this message
+    const messageId = msg.id || `msg-${index}-${Date.now()}`;
+    
+    // Check if this message was previously expanded
+    const isExpanded = expandedMessageIds.has(messageId);
+    
+    // Make URLs clickable
+    let fullContentHtml = fullContent
+      .replace(/\n/g, '<br>')
+      .replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
 
-        // Add click event to the button
-        const showBtn = item.querySelector('.show-full-btn');
-        showBtn.addEventListener('click', () => {
-          toggleMessageExpansion(showBtn, messageId);
-        });
+    // Create HTML structure
+    item.innerHTML = `
+      <div class="msg-header">
+        <div class="msg-sender">${sender}</div>
+        <div class="msg-date">${date}</div>
+      </div>
+      <div class="msg-subject">${subject}</div>
+      <div class="msg-preview">${preview}</div>
+      <button class="show-full-btn">
+        <i class="fas fa-chevron-${isExpanded ? 'up' : 'down'}"></i>
+        ${isExpanded ? 'Hide Full Message' : 'Show Full Message'}
+      </button>
+      <div class="msg-full-content ${isExpanded ? 'show' : ''}">${fullContentHtml}</div>
+    `;
 
-        messagesList.appendChild(item);
-      });
+    // Add click event to the button
+    const showBtn = item.querySelector('.show-full-btn');
+    showBtn.addEventListener('click', () => {
+      toggleMessageExpansion(showBtn, messageId);
+    });
 
-      messagesBox.appendChild(messagesList);
+    messagesList.appendChild(item);
+  });
 
-      // Add limit notice if there are more than 3 messages
-      if (messages.length > 3) {
-        const notice = document.createElement("div");
-        notice.className = "limit-notice";
-        notice.innerHTML = `<i class="fas fa-info-circle"></i> Showing 3 most recent of ${messages.length} total messages`;
-        messagesBox.appendChild(notice);
-      }
-    }
+  messagesBox.appendChild(messagesList);
 
+  // Add limit notice if there are more than 3 messages
+  if (messages.length > 3) {
+    const notice = document.createElement("div");
+    notice.className = "limit-notice";
+    notice.innerHTML = `<i class="fas fa-info-circle"></i> Showing 3 most recent of ${messages.length} total messages`;
+    messagesBox.appendChild(notice);
+  }
+}
     async function fetchInbox() {
       const email = getFullEmail();
       if (!email) {
