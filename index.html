@@ -9,10 +9,9 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
+    body{
       min-height: 100vh;
       display: flex;
-      align-items: stretch;
       justify-content: center;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: radial-gradient(circle at top, #ffd9e8 0, #ffe9f2 40%, #ffeef7 70%, #ffeef7 100%);
@@ -20,13 +19,16 @@
       padding: 18px;
     }
 
-    /* ✅ Wider on desktop, still good on phone */
-    .app {
+    /* ✅ Page wrapper so footer can stick to the bottom */
+    .page{
       width: 100%;
-      max-width: 1100px;
-      min-width: 320px;
+      max-width: 1100px;         /* ✅ bigger on desktop */
+      min-height: 100vh;
       display: flex;
+      flex-direction: column;
     }
+
+    .app { width: 100%; }
 
     .card {
       width: 100%;
@@ -103,7 +105,6 @@
       text-transform: uppercase;
       transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
     }
-
     .btn:active { transform: translateY(1px); box-shadow: none; }
 
     .btn-secondary {
@@ -147,7 +148,7 @@
       text-overflow: ellipsis;
     }
 
-    /* ✅ More height on desktop */
+    /* ✅ Better look + bigger height */
     .messages-box {
       border-radius: 18px;
       background: #fff7fb;
@@ -163,7 +164,7 @@
       color: #c37a9d;
       font-size: 13px;
       text-align: center;
-      padding: 30px 20px;
+      padding: 26px 18px;
     }
 
     .messages-list { display: flex; flex-direction: column; gap: 12px; }
@@ -185,20 +186,20 @@
       gap: 6px;
     }
 
-    .msg-sender { font-weight: 700; color: #3d1b2f; font-size: 14px; }
+    .msg-sender { font-weight: 800; color: #3d1b2f; font-size: 14px; }
     .msg-date { font-size: 11px; color: #b47a96; background: #fff7fb; padding: 4px 10px; border-radius: 12px; }
 
     .msg-subject {
-      font-size: 15px;
-      font-weight: 600;
+      font-size: 16px;
+      font-weight: 700;
       color: #b23a73;
       margin-bottom: 10px;
-      line-height: 1.4;
+      line-height: 1.35;
       word-break: break-word;
     }
 
-    /* ✅ Toggle buttons */
     .toggle-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+
     .toggle-btn {
       background: #ffe6f2;
       border: none;
@@ -213,8 +214,8 @@
       transition: all 0.3s;
     }
     .toggle-btn:hover { background: #ffd6ec; }
+    .toggle-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
-    /* ✅ Full content container always visible */
     .msg-full-content {
       margin-top: 10px;
       padding-top: 12px;
@@ -236,7 +237,7 @@
       padding: 12px;
     }
 
-    /* ✅ Sandboxed iframe for HTML email */
+    /* ✅ More stable + Gmail-like */
     .email-iframe {
       width: 100%;
       height: 62vh;
@@ -245,13 +246,14 @@
       background: #fff;
     }
 
-    .footer {
+    .footer-outside{
+      margin-top: auto;
       text-align: center;
-      margin-top: 14px;
+      padding: 14px 0 6px;
       font-size: 11px;
       color: #b47a96;
     }
-    .footer span { font-weight: 600; }
+    .footer-outside span { font-weight: 600; }
 
     .toast {
       position: fixed;
@@ -273,7 +275,6 @@
 
     @media (max-width: 600px) {
       body { padding: 12px; }
-      .app { max-width: 100%; }
       .card { padding: 20px; }
       .controls { flex-wrap: nowrap; }
       .btn { font-size: 12px; padding: 0 8px; }
@@ -291,41 +292,44 @@
     }
   </style>
 </head>
+
 <body>
-  <div class="app">
-    <div class="card">
-      <div class="header">
-        <div class="logo-pill">X</div>
-        <div>
-          <div class="title-main">xyzaia.store</div>
-          <div class="title-sub">Mail inbox · AIAXCART</div>
+  <div class="page">
+    <div class="app">
+      <div class="card">
+        <div class="header">
+          <div class="logo-pill">X</div>
+          <div>
+            <div class="title-main">xyzaia.store</div>
+            <div class="title-sub">Mail inbox · AIAXCART</div>
+          </div>
+        </div>
+
+        <div class="section-label">Mail address</div>
+        <div class="email-row">
+          <input id="usernameInput" type="text" placeholder="username" autocomplete="off" />
+          <div class="email-domain">@xyzaia.store</div>
+        </div>
+
+        <div class="controls">
+          <button class="btn btn-secondary" id="btnGenerate">Generate</button>
+          <button class="btn btn-secondary" id="btnCopy">Copy</button>
+          <button class="btn btn-primary" id="btnInbox">Get inbox</button>
+        </div>
+
+        <div class="messages-header">
+          <div class="messages-title">Message</div>
+          <div class="messages-for" id="messagesFor">No email selected</div>
+        </div>
+
+        <div class="messages-box" id="messagesBox">
+          <div class="message-empty">No message yet.</div>
         </div>
       </div>
+    </div>
 
-      <div class="section-label">Mail address</div>
-      <div class="email-row">
-        <input id="usernameInput" type="text" placeholder="username" autocomplete="off" />
-        <div class="email-domain">@xyzaia.store</div>
-      </div>
-
-      <div class="controls">
-        <button class="btn btn-secondary" id="btnGenerate">Generate</button>
-        <button class="btn btn-secondary" id="btnCopy">Copy</button>
-        <button class="btn btn-primary" id="btnInbox">Get inbox</button>
-      </div>
-
-      <div class="messages-header">
-        <div class="messages-title">Message</div>
-        <div class="messages-for" id="messagesFor">No email selected</div>
-      </div>
-
-      <div class="messages-box" id="messagesBox">
-        <div class="message-empty">No messages yet.</div>
-      </div>
-
-      <div class="footer">
-        aiaxcart ©<span>2024</span>
-      </div>
+    <div class="footer-outside">
+      aiaxcart ©<span>2024</span>
     </div>
   </div>
 
@@ -445,23 +449,55 @@
       return safe.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
     }
 
+    function buildIframeHtml(rawHtml) {
+      const html = String(rawHtml || "");
+
+      const inject = `
+        <base target="_blank">
+        <style>
+          html, body { margin: 0; padding: 0; }
+          body { padding: 12px; font-family: system-ui, -apple-system, Segoe UI, sans-serif; line-height: 1.5; }
+          img, video { max-width: 100% !important; height: auto !important; }
+          table { max-width: 100% !important; width: 100% !important; }
+          td, th { word-break: break-word; }
+          a { word-break: break-all; }
+          * { box-sizing: border-box; }
+        </style>
+      `;
+
+      if (/<head[\s>]/i.test(html)) {
+        return html.replace(/<head[^>]*>/i, (m) => m + inject);
+      }
+      if (/<html[\s>]/i.test(html)) {
+        return html.replace(/<html[^>]*>/i, (m) => m + "<head>" + inject + "</head>");
+      }
+      return "<head>" + inject + "</head>" + html;
+    }
+
     function renderMessages(messages) {
       messagesBox.innerHTML = "";
 
       if (!messages || messages.length === 0) {
         const empty = document.createElement("div");
         empty.className = "message-empty";
-        empty.textContent = "No messages yet.";
+        empty.innerHTML = `
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:center;">
+            <div style="font-weight:900;color:#b23a73;">No message yet</div>
+            <div style="color:#c37a9d;font-size:12px;text-align:center;line-height:1.4;">
+              Send an email to this address then tap <b>Get inbox</b>.
+            </div>
+          </div>
+        `;
         messagesBox.appendChild(empty);
         return;
       }
 
-      // Sort newest first, then take ONLY latest 1
       const sortedMessages = [...messages].sort((a, b) => {
         const dateA = a.date ? new Date(a.date).getTime() : 0;
         const dateB = b.date ? new Date(b.date).getTime() : 0;
         return dateB - dateA;
       });
+
       const latestOnly = sortedMessages.slice(0, 1);
 
       const messagesList = document.createElement("div");
@@ -477,8 +513,6 @@
 
         const plain = msg.body_plain || msg.body || "";
         const html = msg.body_html || "";
-
-        // default view: HTML if present, else plain
         const hasHtml = Boolean(html && html.trim().length);
 
         item.innerHTML = `
@@ -497,15 +531,9 @@
             </button>
           </div>
 
-          <div class="msg-full-content">
-            ${hasHtml
-              ? `<iframe class="email-iframe" sandbox="allow-same-origin allow-popups allow-forms" referrerpolicy="no-referrer"></iframe>`
-              : `<div class="plain-view">${linkifyPlainText(plain)}</div>`
-            }
-          </div>
+          <div class="msg-full-content"></div>
         `;
 
-        // Wire buttons
         const btnHtml = item.querySelector('button[data-view="html"]');
         const btnPlain = item.querySelector('button[data-view="plain"]');
         const content = item.querySelector(".msg-full-content");
@@ -516,17 +544,28 @@
 
         function showHtml() {
           if (!hasHtml) { showPlain(); return; }
-          content.innerHTML = `<iframe class="email-iframe" sandbox="allow-same-origin allow-popups allow-forms" referrerpolicy="no-referrer"></iframe>`;
+
+          content.innerHTML = `
+            <iframe class="email-iframe"
+              sandbox="allow-same-origin allow-popups allow-forms allow-top-navigation-by-user-activation"
+              referrerpolicy="no-referrer"></iframe>
+          `;
+
           const iframe = content.querySelector("iframe");
-          // Write the email HTML into iframe
-          const doc = iframe.contentWindow.document;
-          doc.open();
-          doc.write(html);
-          doc.close();
+          iframe.srcdoc = buildIframeHtml(html);
+
+          // Fallback: if iframe shows nothing on some mobile cases
+          iframe.addEventListener("load", () => {
+            try {
+              const text = (iframe.contentWindow.document.body.innerText || "").trim();
+              if (!text && plain && plain.trim()) showPlain();
+            } catch (e) {}
+          });
         }
 
-        // Default: HTML if available
-        if (hasHtml) showHtml(); else showPlain();
+        // ✅ Default to HTML view if available (Gmail-like)
+        if (hasHtml) showHtml();
+        else showPlain();
 
         btnPlain.addEventListener("click", showPlain);
         btnHtml && btnHtml.addEventListener("click", showHtml);
@@ -539,13 +578,16 @@
 
     async function fetchInbox() {
       const email = getFullEmail();
-      if (!email) {
-        showToast("Enter or generate a username first.");
-        return;
-      }
+      if (!email) { showToast("Enter or generate a username first."); return; }
 
       updateMessagesFor();
-      messagesBox.innerHTML = '<div class="message-empty">Loading message…</div>';
+      messagesBox.innerHTML = `
+        <div class="message-empty" style="padding:18px 16px;">
+          <div style="height:10px;border-radius:999px;background:#ffe6f2;margin-bottom:10px;"></div>
+          <div style="height:10px;border-radius:999px;background:#ffe6f2;width:70%;"></div>
+          <div style="margin-top:14px;color:#c37a9d;">Loading message…</div>
+        </div>
+      `;
 
       try {
         const url = `${API_URL}?email=${encodeURIComponent(email)}`;
@@ -559,9 +601,11 @@
           return;
         }
 
-        const messages = Array.isArray(data.messages) ? data.messages : (Array.isArray(data) ? data : []);
+        const messages = Array.isArray(data.messages) ? data.messages :
+                         Array.isArray(data) ? data : [];
+
         if (messages.length === 0) showToast("No messages found.");
-        else showToast(`Loaded latest message ✅`);
+        else showToast("Loaded latest message ✅");
 
         renderMessages(messages);
       } catch (err) {
@@ -575,11 +619,9 @@
     btnCopy.addEventListener("click", copyEmail);
     btnInbox.addEventListener("click", fetchInbox);
 
-    // Initial state
     updateMessagesFor();
     generateUsername();
 
-    // Auto-check inbox after 1 second
     setTimeout(() => {
       if (getFullEmail()) fetchInbox();
     }, 1000);
