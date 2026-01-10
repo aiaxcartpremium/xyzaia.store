@@ -7,31 +7,29 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       min-height: 100vh;
       display: flex;
-      align-items: center;
+      align-items: stretch;
       justify-content: center;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-        sans-serif;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: radial-gradient(circle at top, #ffd9e8 0, #ffe9f2 40%, #ffeef7 70%, #ffeef7 100%);
       color: #3d1b2f;
-      padding: 20px;
+      padding: 18px;
     }
 
+    /* ✅ Wider on desktop, still good on phone */
     .app {
       width: 100%;
-      max-width: 480px;
+      max-width: 1100px;
       min-width: 320px;
+      display: flex;
     }
 
     .card {
+      width: 100%;
       background: rgba(255, 255, 255, 0.95);
       border-radius: 26px;
       box-shadow: 0 18px 40px rgba(255, 137, 178, 0.35);
@@ -40,58 +38,25 @@
       border: 1px solid rgba(255, 151, 190, 0.4);
     }
 
-    .header {
-      display: flex;
-      gap: 14px;
-      align-items: center;
-      margin-bottom: 18px;
-    }
+    .header { display: flex; gap: 14px; align-items: center; margin-bottom: 18px; }
 
     .logo-pill {
-      width: 52px;
-      height: 52px;
-      border-radius: 18px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      width: 52px; height: 52px; border-radius: 18px;
+      display: flex; align-items: center; justify-content: center;
       background: linear-gradient(135deg, #ff6fa5, #ff98c2);
-      color: #fff;
-      font-size: 26px;
-      font-weight: 700;
+      color: #fff; font-size: 26px; font-weight: 700;
       box-shadow: 0 10px 22px rgba(255, 111, 165, 0.5);
     }
 
-    .title-main {
-      font-weight: 800;
-      letter-spacing: 0.02em;
-      font-size: 20px;
-      margin-bottom: 2px;
-    }
-
-    .title-sub {
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      color: #b23a73;
-      font-weight: 700;
-    }
+    .title-main { font-weight: 800; letter-spacing: 0.02em; font-size: 20px; margin-bottom: 2px; }
+    .title-sub { font-size: 12px; text-transform: uppercase; letter-spacing: 0.14em; color: #b23a73; font-weight: 700; }
 
     .section-label {
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      color: #b23a73;
-      text-transform: uppercase;
-      margin-bottom: 6px;
-      margin-top: 8px;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+      color: #b23a73; text-transform: uppercase; margin-bottom: 6px; margin-top: 8px;
     }
 
-    .email-row {
-      display: flex;
-      align-items: stretch;
-      gap: 4px;
-      margin-bottom: 14px;
-    }
+    .email-row { display: flex; align-items: stretch; gap: 4px; margin-bottom: 14px; }
 
     .email-row input {
       flex: 1;
@@ -124,11 +89,7 @@
       flex-shrink: 0;
     }
 
-    .controls {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 14px;
-    }
+    .controls { display: flex; gap: 8px; margin-bottom: 14px; }
 
     .btn {
       flex: 1;
@@ -143,30 +104,21 @@
       transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
     }
 
-    .btn:active {
-      transform: translateY(1px);
-      box-shadow: none;
-    }
+    .btn:active { transform: translateY(1px); box-shadow: none; }
 
     .btn-secondary {
       background: #ffe6f2;
       color: #b23a73;
       box-shadow: 0 8px 18px rgba(255, 180, 206, 0.5);
     }
-
-    .btn-secondary:hover {
-      background: #ffd6ec;
-    }
+    .btn-secondary:hover { background: #ffd6ec; }
 
     .btn-primary {
       background: linear-gradient(135deg, #ff6fa5, #ff4590);
       color: #fff;
       box-shadow: 0 10px 24px rgba(255, 73, 140, 0.7);
     }
-
-    .btn-primary:hover {
-      filter: brightness(1.03);
-    }
+    .btn-primary:hover { filter: brightness(1.03); }
 
     .messages-header {
       display: flex;
@@ -174,6 +126,7 @@
       align-items: baseline;
       margin-bottom: 6px;
       margin-top: 4px;
+      gap: 10px;
     }
 
     .messages-title {
@@ -187,22 +140,23 @@
     .messages-for {
       font-size: 11px;
       color: #ba5c86;
-      max-width: 60%;
+      max-width: 70%;
       text-align: right;
       word-break: break-all;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
+    /* ✅ More height on desktop */
     .messages-box {
       border-radius: 18px;
       background: #fff7fb;
       border: 1px dashed rgba(255, 151, 190, 0.7);
       padding: 15px 14px;
-      max-height: 400px;
+      max-height: 75vh;
       overflow-y: auto;
       font-size: 13px;
-      min-height: 150px;
+      min-height: 220px;
     }
 
     .message-empty {
@@ -212,11 +166,7 @@
       padding: 30px 20px;
     }
 
-    .messages-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
+    .messages-list { display: flex; flex-direction: column; gap: 12px; }
 
     .message-item {
       background: white;
@@ -235,19 +185,8 @@
       gap: 6px;
     }
 
-    .msg-sender {
-      font-weight: 700;
-      color: #3d1b2f;
-      font-size: 14px;
-    }
-
-    .msg-date {
-      font-size: 11px;
-      color: #b47a96;
-      background: #fff7fb;
-      padding: 4px 10px;
-      border-radius: 12px;
-    }
+    .msg-sender { font-weight: 700; color: #3d1b2f; font-size: 14px; }
+    .msg-date { font-size: 11px; color: #b47a96; background: #fff7fb; padding: 4px 10px; border-radius: 12px; }
 
     .msg-subject {
       font-size: 15px;
@@ -255,77 +194,55 @@
       color: #b23a73;
       margin-bottom: 10px;
       line-height: 1.4;
-    }
-
-    .msg-preview {
-      color: #7b3f5a;
-      line-height: 1.5;
-      margin-bottom: 12px;
-      font-size: 13px;
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
       word-break: break-word;
     }
 
+    /* ✅ Toggle buttons */
+    .toggle-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+    .toggle-btn {
+      background: #ffe6f2;
+      border: none;
+      color: #b23a73;
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.3s;
+    }
+    .toggle-btn:hover { background: #ffd6ec; }
+
+    /* ✅ Full content container always visible */
     .msg-full-content {
-      display: none;
-      margin-top: 12px;
+      margin-top: 10px;
       padding-top: 12px;
       border-top: 1px dashed rgba(255, 151, 190, 0.5);
       color: #3d1b2f;
       line-height: 1.6;
       font-size: 13px;
-      white-space: pre-wrap;
+      white-space: normal;
       word-break: break-word;
-      overflow-wrap: break-word;
+      overflow-wrap: anywhere;
       max-width: 100%;
     }
 
-    .msg-full-content.show {
-      display: block;
+    .plain-view {
+      white-space: pre-wrap;
+      background: #fff7fb;
+      border: 1px solid rgba(255, 204, 225, 0.8);
+      border-radius: 14px;
+      padding: 12px;
     }
 
-    .msg-full-content a {
-      color: #ff6fa5;
-      text-decoration: underline;
-      word-break: break-all;
-      overflow-wrap: anywhere;
-    }
-
-    .show-full-btn {
-      background: #ffe6f2;
-      border: none;
-      color: #b23a73;
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-size: 12px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.3s;
-      margin-top: 5px;
-    }
-
-    .show-full-btn:hover {
-      background: #ffd6ec;
-    }
-
-    .show-full-btn i {
-      font-size: 10px;
-    }
-
-    .limit-notice {
-      text-align: center;
-      font-size: 11px;
-      color: #b23a73;
-      background: #ffe6f2;
-      padding: 8px;
-      border-radius: 12px;
-      margin-top: 12px;
-      border: 1px dashed rgba(255, 151, 190, 0.5);
+    /* ✅ Sandboxed iframe for HTML email */
+    .email-iframe {
+      width: 100%;
+      height: 62vh;
+      border: 1px solid rgba(255, 204, 225, 0.8);
+      border-radius: 14px;
+      background: #fff;
     }
 
     .footer {
@@ -334,10 +251,7 @@
       font-size: 11px;
       color: #b47a96;
     }
-
-    .footer span {
-      font-weight: 600;
-    }
+    .footer span { font-weight: 600; }
 
     .toast {
       position: fixed;
@@ -355,67 +269,25 @@
       transition: opacity 0.18s ease, transform 0.18s ease;
       z-index: 20;
     }
-
-    .toast.show {
-      opacity: 1;
-      transform: translate(-50%, -4px);
-    }
+    .toast.show { opacity: 1; transform: translate(-50%, -4px); }
 
     @media (max-width: 600px) {
-      .app {
-        max-width: 100%;
-        padding: 10px;
-      }
-      
-      .card {
-        padding: 20px;
-      }
-      
-      .controls {
-        flex-wrap: nowrap;
-      }
-      
-      .btn {
-        font-size: 12px;
-        padding: 0 8px;
-      }
-      
-      .email-domain {
-        font-size: 12px;
-        padding: 0 10px;
-      }
-      
-      .messages-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 4px;
-      }
-      
-      .messages-for {
-        max-width: 100%;
-        text-align: left;
-        font-size: 10px;
-      }
-      
-      .message-item {
-        padding: 14px;
-      }
+      body { padding: 12px; }
+      .app { max-width: 100%; }
+      .card { padding: 20px; }
+      .controls { flex-wrap: nowrap; }
+      .btn { font-size: 12px; padding: 0 8px; }
+      .email-domain { font-size: 12px; padding: 0 10px; }
+      .messages-header { flex-direction: column; align-items: flex-start; gap: 4px; }
+      .messages-for { max-width: 100%; text-align: left; font-size: 10px; }
+      .message-item { padding: 14px; }
+      .email-iframe { height: 55vh; }
     }
 
     @media (max-width: 400px) {
-      .controls {
-        flex-wrap: wrap;
-      }
-      
-      .btn {
-        min-width: calc(33.333% - 6px);
-        font-size: 11px;
-      }
-      
-      .email-domain {
-        font-size: 11px;
-        padding: 0 8px;
-      }
+      .controls { flex-wrap: wrap; }
+      .btn { min-width: calc(33.333% - 6px); font-size: 11px; }
+      .email-domain { font-size: 11px; padding: 0 8px; }
     }
   </style>
 </head>
@@ -432,12 +304,7 @@
 
       <div class="section-label">Mail address</div>
       <div class="email-row">
-        <input
-          id="usernameInput"
-          type="text"
-          placeholder="username"
-          autocomplete="off"
-        />
+        <input id="usernameInput" type="text" placeholder="username" autocomplete="off" />
         <div class="email-domain">@xyzaia.store</div>
       </div>
 
@@ -448,7 +315,7 @@
       </div>
 
       <div class="messages-header">
-        <div class="messages-title">Messages</div>
+        <div class="messages-title">Message</div>
         <div class="messages-for" id="messagesFor">No email selected</div>
       </div>
 
@@ -476,9 +343,6 @@
     const messagesFor = document.getElementById("messagesFor");
     const toastEl = document.getElementById("toast");
 
-    // Store to keep track of expanded messages
-    let expandedMessageIds = new Set();
-
     function showToast(text) {
       toastEl.textContent = text;
       toastEl.classList.add("show");
@@ -489,9 +353,7 @@
       if (!value) return "";
       let v = value.trim().toLowerCase();
       const atIndex = v.indexOf("@");
-      if (atIndex !== -1) {
-        v = v.slice(0, atIndex);
-      }
+      if (atIndex !== -1) v = v.slice(0, atIndex);
       v = v.replace(/[^a-z0-9._-]/g, "");
       return v;
     }
@@ -509,18 +371,14 @@
 
     usernameInput.addEventListener("input", () => {
       const norm = normalizeUsername(usernameInput.value);
-      if (usernameInput.value !== norm) {
-        usernameInput.value = norm;
-      }
+      if (usernameInput.value !== norm) usernameInput.value = norm;
       updateMessagesFor();
     });
 
     function generateRandomString() {
       const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
       let result = '';
-      for (let i = 0; i < 8; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
-      }
+      for (let i = 0; i < 8; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
       return result;
     }
 
@@ -532,10 +390,7 @@
 
     async function copyEmail() {
       const email = getFullEmail();
-      if (!email) {
-        showToast("Enter or generate a username first.");
-        return;
-      }
+      if (!email) { showToast("Enter or generate a username first."); return; }
 
       try {
         if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -578,112 +433,110 @@
       return match ? (match[1] || match[2] || match[3] || from).trim() : from;
     }
 
-    // Function to handle message expansion
-    function toggleMessageExpansion(button, messageId) {
-      const contentDiv = button.nextElementSibling;
-      const icon = button.querySelector('i');
-      
-      if (contentDiv.classList.contains('show')) {
-        contentDiv.classList.remove('show');
-        expandedMessageIds.delete(messageId);
-        icon.className = "fas fa-chevron-down";
-        button.innerHTML = '<i class="fas fa-chevron-down"></i> Show Full Message';
-      } else {
-        contentDiv.classList.add('show');
-        expandedMessageIds.add(messageId);
-        icon.className = "fas fa-chevron-up";
-        button.innerHTML = '<i class="fas fa-chevron-up"></i> Hide Full Message';
-      }
+    function escapeHtml(s) {
+      return String(s || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    }
+
+    function linkifyPlainText(plain) {
+      const safe = escapeHtml(plain).replace(/\n/g, "<br>");
+      return safe.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
     }
 
     function renderMessages(messages) {
-  messagesBox.innerHTML = "";
-  
-  if (!messages || messages.length === 0) {
-    const empty = document.createElement("div");
-    empty.className = "message-empty";
-    empty.textContent = "No messages yet.";
-    messagesBox.appendChild(empty);
-    return;
-  }
+      messagesBox.innerHTML = "";
 
-  // Create messages list container
-  const messagesList = document.createElement("div");
-  messagesList.className = "messages-list";
+      if (!messages || messages.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "message-empty";
+        empty.textContent = "No messages yet.";
+        messagesBox.appendChild(empty);
+        return;
+      }
 
-  // FIXED: Get the 3 most recent messages (newest first)
-  // Sort messages by date in descending order (newest to oldest)
-  const sortedMessages = [...messages].sort((a, b) => {
-    const dateA = a.date ? new Date(a.date).getTime() : 0;
-    const dateB = b.date ? new Date(b.date).getTime() : 0;
-    return dateB - dateA; // Descending order
-  });
+      // Sort newest first, then take ONLY latest 1
+      const sortedMessages = [...messages].sort((a, b) => {
+        const dateA = a.date ? new Date(a.date).getTime() : 0;
+        const dateB = b.date ? new Date(b.date).getTime() : 0;
+        return dateB - dateA;
+      });
+      const latestOnly = sortedMessages.slice(0, 1);
 
-  // Take only the first 3 (most recent) messages
-  const recentMessages = sortedMessages.slice(0, 3);
-  
-  // Add messages to list
-  recentMessages.forEach((msg, index) => {
-    const item = document.createElement("div");
-    item.className = "message-item";
+      const messagesList = document.createElement("div");
+      messagesList.className = "messages-list";
 
-    const sender = extractSender(msg.from);
-    const date = formatDate(msg.date);
-    const subject = msg.subject || "(no subject)";
-    
-    // Get full content
-    const fullContent = msg.body || msg.snippet || "";
-    
-    // Create preview (first 150 chars)
-    const preview = fullContent.length > 150 
-      ? fullContent.substring(0, 150) + "..." 
-      : fullContent;
+      latestOnly.forEach((msg, index) => {
+        const item = document.createElement("div");
+        item.className = "message-item";
 
-    // Create a unique ID for this message
-    const messageId = msg.id || `msg-${index}-${Date.now()}`;
-    
-    // Check if this message was previously expanded
-    const isExpanded = expandedMessageIds.has(messageId);
-    
-    // Make URLs clickable
-    let fullContentHtml = fullContent
-      .replace(/\n/g, '<br>')
-      .replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
+        const sender = extractSender(msg.from);
+        const date = formatDate(msg.date);
+        const subject = msg.subject || "(no subject)";
 
-    // Create HTML structure
-    item.innerHTML = `
-      <div class="msg-header">
-        <div class="msg-sender">${sender}</div>
-        <div class="msg-date">${date}</div>
-      </div>
-      <div class="msg-subject">${subject}</div>
-      <div class="msg-preview">${preview}</div>
-      <button class="show-full-btn">
-        <i class="fas fa-chevron-${isExpanded ? 'up' : 'down'}"></i>
-        ${isExpanded ? 'Hide Full Message' : 'Show Full Message'}
-      </button>
-      <div class="msg-full-content ${isExpanded ? 'show' : ''}">${fullContentHtml}</div>
-    `;
+        const plain = msg.body_plain || msg.body || "";
+        const html = msg.body_html || "";
 
-    // Add click event to the button
-    const showBtn = item.querySelector('.show-full-btn');
-    showBtn.addEventListener('click', () => {
-      toggleMessageExpansion(showBtn, messageId);
-    });
+        // default view: HTML if present, else plain
+        const hasHtml = Boolean(html && html.trim().length);
 
-    messagesList.appendChild(item);
-  });
+        item.innerHTML = `
+          <div class="msg-header">
+            <div class="msg-sender">${escapeHtml(sender)}</div>
+            <div class="msg-date">${escapeHtml(date)}</div>
+          </div>
+          <div class="msg-subject">${escapeHtml(subject)}</div>
 
-  messagesBox.appendChild(messagesList);
+          <div class="toggle-row">
+            <button class="toggle-btn" data-view="html" ${hasHtml ? "" : "disabled"} title="${hasHtml ? "" : "No HTML content"}">
+              <i class="fas fa-code"></i> HTML View
+            </button>
+            <button class="toggle-btn" data-view="plain">
+              <i class="fas fa-align-left"></i> Plain View
+            </button>
+          </div>
 
-  // Add limit notice if there are more than 3 messages
-  if (messages.length > 3) {
-    const notice = document.createElement("div");
-    notice.className = "limit-notice";
-    notice.innerHTML = `<i class="fas fa-info-circle"></i> Showing 3 most recent of ${messages.length} total messages`;
-    messagesBox.appendChild(notice);
-  }
-}
+          <div class="msg-full-content">
+            ${hasHtml
+              ? `<iframe class="email-iframe" sandbox="allow-same-origin allow-popups allow-forms" referrerpolicy="no-referrer"></iframe>`
+              : `<div class="plain-view">${linkifyPlainText(plain)}</div>`
+            }
+          </div>
+        `;
+
+        // Wire buttons
+        const btnHtml = item.querySelector('button[data-view="html"]');
+        const btnPlain = item.querySelector('button[data-view="plain"]');
+        const content = item.querySelector(".msg-full-content");
+
+        function showPlain() {
+          content.innerHTML = `<div class="plain-view">${linkifyPlainText(plain)}</div>`;
+        }
+
+        function showHtml() {
+          if (!hasHtml) { showPlain(); return; }
+          content.innerHTML = `<iframe class="email-iframe" sandbox="allow-same-origin allow-popups allow-forms" referrerpolicy="no-referrer"></iframe>`;
+          const iframe = content.querySelector("iframe");
+          // Write the email HTML into iframe
+          const doc = iframe.contentWindow.document;
+          doc.open();
+          doc.write(html);
+          doc.close();
+        }
+
+        // Default: HTML if available
+        if (hasHtml) showHtml(); else showPlain();
+
+        btnPlain.addEventListener("click", showPlain);
+        btnHtml && btnHtml.addEventListener("click", showHtml);
+
+        messagesList.appendChild(item);
+      });
+
+      messagesBox.appendChild(messagesList);
+    }
+
     async function fetchInbox() {
       const email = getFullEmail();
       if (!email) {
@@ -692,7 +545,7 @@
       }
 
       updateMessagesFor();
-      messagesBox.innerHTML = '<div class="message-empty">Loading messages…</div>';
+      messagesBox.innerHTML = '<div class="message-empty">Loading message…</div>';
 
       try {
         const url = `${API_URL}?email=${encodeURIComponent(email)}`;
@@ -700,22 +553,16 @@
         const data = await res.json();
 
         if (data.error) {
-          showToast("Error loading messages.");
+          console.error("API error:", data.error);
+          showToast("Error loading message.");
           renderMessages([]);
           return;
         }
 
-        // Get messages from response
-        const messages = Array.isArray(data.messages) ? data.messages : 
-                        Array.isArray(data) ? data : 
-                        [];
-        
-        if (messages.length === 0) {
-          showToast("No messages found.");
-        } else {
-          showToast(`Loaded ${messages.length} messages`);
-        }
-        
+        const messages = Array.isArray(data.messages) ? data.messages : (Array.isArray(data) ? data : []);
+        if (messages.length === 0) showToast("No messages found.");
+        else showToast(`Loaded latest message ✅`);
+
         renderMessages(messages);
       } catch (err) {
         console.error("Fetch error:", err);
@@ -731,12 +578,10 @@
     // Initial state
     updateMessagesFor();
     generateUsername();
-    
+
     // Auto-check inbox after 1 second
     setTimeout(() => {
-      if (getFullEmail()) {
-        fetchInbox();
-      }
+      if (getFullEmail()) fetchInbox();
     }, 1000);
   </script>
 </body>
