@@ -165,7 +165,7 @@
       border-radius: 18px;
       background: #fff7fb;
       border: 1px dashed rgba(255, 151, 190, 0.7);
-      padding: 15px 14px;
+      padding: 15px 14px 80px;
       max-height: 72vh;
       overflow-y: auto;
       font-size: 13px;
@@ -246,22 +246,28 @@
       background: #fff;
     }
 
-    /* ✅ Fixed footer always visible */
     .footer-fixed{
-      position: fixed;
-      left: 0;
-      right: 0;
-      bottom: 10px;
-      text-align: center;
-      font-size: 12px;
-      font-weight: 900;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      color: #b23a73;
-      opacity: 0.92;
-      z-index: 50;
-      pointer-events: none;
-    }
+  position: fixed;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+  padding: 8px 14px;
+  border-radius: 999px;
+
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+
+  color: #b23a73;
+  background: rgba(255,255,255,0.72);
+  border: 1px solid rgba(255,151,190,0.55);
+  box-shadow: 0 10px 26px rgba(255, 73, 140, 0.25);
+  backdrop-filter: blur(10px);
+
+  z-index: 50;
+  pointer-events: none;
+}
 
     .toast {
       position: fixed;
