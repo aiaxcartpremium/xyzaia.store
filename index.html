@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <title>xyzaia.mail — Quick inbox</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -252,18 +251,15 @@
       transform: translateX(-50%);
       padding: 8px 14px;
       border-radius: 999px;
-
       font-size: 11px;
       font-weight: 900;
       letter-spacing: .08em;
       text-transform: uppercase;
-
       color: #b23a73;
       background: rgba(255,255,255,0.72);
       border: 1px solid rgba(255,151,190,0.55);
       box-shadow: 0 10px 26px rgba(255, 73, 140, 0.25);
       backdrop-filter: blur(10px);
-
       z-index: 50;
       pointer-events: none;
     }
@@ -348,8 +344,8 @@
   <div class="toast" id="toast"></div>
 
   <script>
-    // ✅ Put your Apps Script /exec URL here
-    const API_URL = "https://script.google.com/macros/s/AKfycbzpZ5hcmQr6RAjIOvfQAFwRhdF9UvJZY4AH92RfKcYCB4YAXMW0YMjsgS9AhX0rlQY0fg/exec";
+    // ✅ UPDATE this to your WORKING Apps Script deployment URL
+    const API_URL = "https://script.google.com/macros/s/AKfycbw3TS4b2Spv-rXrQeDWE1kELNXBONogvcoyN_2bxM5Q_vjhfuJrOlZqZpgwlvpMBqbVnA/exec";
     const DOMAIN = "xyzaia.store";
 
     const usernameInput = document.getElementById("usernameInput");
@@ -359,16 +355,6 @@
     const messagesBox = document.getElementById("messagesBox");
     const messagesFor = document.getElementById("messagesFor");
     const toastEl = document.getElementById("toast");
-
-    // Receive link-open requests from the email iframe
-    window.addEventListener("message", (ev) => {
-      try {
-        if (!ev || !ev.data || ev.data.type !== "open-link") return;
-        const url = String(ev.data.url || "");
-        if (!/^https?:\/\//i.test(url)) return;
-        window.open(url, "_blank", "noopener,noreferrer");
-      } catch (e) {}
-    });
 
     function showToast(text) {
       toastEl.textContent = text;
@@ -403,8 +389,8 @@
     });
 
     function generateRandomString() {
-      const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
-      let result = "";
+      const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+      let result = '';
       for (let i = 0; i < 8; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
       return result;
     }
@@ -439,6 +425,7 @@
         }
         showToast("Email copied.");
       } catch (e) {
+        console.error(e);
         showToast("Unable to copy.");
       }
     }
@@ -447,12 +434,12 @@
       if (!dateString) return "Recently";
       try {
         const date = new Date(dateString);
-        return date.toLocaleDateString("en-US", {
-          month: "2-digit",
-          day: "2-digit",
-          year: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
+        return date.toLocaleDateString('en-US', {
+          month: '2-digit',
+          day: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
           hour12: true
         });
       } catch (e) {
@@ -478,15 +465,12 @@
       return safe.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
     }
 
-    // ✅ IMPORTANT FIX:
-    // - Render email HTML inside iframe (Gmail-like).
-    // - Intercept link clicks INSIDE the iframe and open them from the parent window.
-    //   This prevents "blank page" behavior on some mobile browsers.
+    // ✅ IFRAME HTML builder + CLICK FORWARDER (fix blank confirm page)
     function buildIframeHtml(rawHtml) {
       let html = String(rawHtml || "");
 
-      const injectHead = `
-        <base target="_blank">
+      const inject = `
+        <base target="_top">
         <style>
           :root { color-scheme: light; }
           html, body { margin: 0; padding: 0; background: #fff; }
@@ -499,53 +483,68 @@
           body > table { width: 100% !important; }
         </style>
         <script>
-          // Relay link clicks to parent
+          // forward all <a> clicks to parent (reliable on mobile)
           document.addEventListener('click', function(e){
             var a = e.target && e.target.closest ? e.target.closest('a') : null;
-            if(!a || !a.href) return;
+            if (!a) return;
+            var href = a.getAttribute('href') || '';
+            if (!href) return;
+            if (href.indexOf('#') === 0) return;
+
             e.preventDefault();
-            parent.postMessage({type:'open-link', url:a.href}, '*');
+            e.stopPropagation();
+
+            var url = '';
+            try { url = new URL(href, document.baseURI).toString(); }
+            catch(err){ url = href; }
+
+            try { parent.postMessage({ type: 'OPEN_EMAIL_LINK', url: url }, '*'); } catch(err){}
           }, true);
-        </script>
+        <\/script>
       `;
 
       const hasHtmlTag = /<html[\s>]/i.test(html);
-
       if (hasHtmlTag) {
         if (/<head[\s>]/i.test(html)) {
-          html = html.replace(/<head[^>]*>/i, (m) => m + injectHead);
+          html = html.replace(/<head[^>]*>/i, (m) => m + inject);
         } else {
-          html = html.replace(/<html[^>]*>/i, (m) => m + `<head>${injectHead}</head>`);
+          html = html.replace(/<html[^>]*>/i, (m) => m + `<head>${inject}</head>`);
         }
         return html;
       }
 
-      // No <html> wrapper present
-      return `<!doctype html><html><head>${injectHead}</head><body>${html}</body></html>`;
+      return `<!doctype html><html><head>${inject}</head><body>${html}</body></html>`;
     }
 
     function renderMessages(messages) {
       messagesBox.innerHTML = "";
 
       if (!messages || messages.length === 0) {
-        messagesBox.innerHTML = `
-          <div class="message-empty">
+        const empty = document.createElement("div");
+        empty.className = "message-empty";
+        empty.innerHTML = `
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:center;">
             <div style="font-weight:900;color:#b23a73;">No message yet</div>
-            <div style="color:#c37a9d;font-size:12px;text-align:center;line-height:1.4;margin-top:8px;">
+            <div style="color:#c37a9d;font-size:12px;text-align:center;line-height:1.4;">
               Send an email to this address then tap <b>Get inbox</b>.
             </div>
           </div>
         `;
+        messagesBox.appendChild(empty);
         return;
       }
 
-      const sorted = [...messages].sort((a, b) => {
+      const sortedMessages = [...messages].sort((a, b) => {
         const dateA = a.date ? new Date(a.date).getTime() : 0;
         const dateB = b.date ? new Date(b.date).getTime() : 0;
         return dateB - dateA;
       });
 
-      const msg = sorted[0];
+      const msg = sortedMessages[0];
+
+      const item = document.createElement("div");
+      item.className = "message-item";
+
       const sender = extractSender(msg.from);
       const date = formatDate(msg.date);
       const subject = msg.subject || "(no subject)";
@@ -553,11 +552,8 @@
       const plain = msg.body_plain || msg.body || "";
       const html = msg.body_html || "";
 
-      // Treat as HTML only if it looks like real HTML
-      const hasHtml = Boolean(html && /<\/?[a-z][\s\S]*>/i.test(html) && html.replace(/\s+/g,"").length > 80);
+      const hasHtml = Boolean(html && html.replace(/\s+/g,'').length > 30);
 
-      const item = document.createElement("div");
-      item.className = "message-item";
       item.innerHTML = `
         <div class="msg-header">
           <div class="msg-sender">${escapeHtml(sender)}</div>
@@ -574,15 +570,17 @@
       }
 
       function showHtml() {
+        if (!hasHtml) { showPlain(); return; }
+
         content.innerHTML = `
           <iframe class="email-iframe"
-            sandbox="allow-same-origin allow-popups allow-forms allow-top-navigation-by-user-activation"
+            sandbox="allow-scripts allow-forms allow-popups allow-top-navigation-by-user-activation"
             referrerpolicy="no-referrer"></iframe>
         `;
+
         const iframe = content.querySelector("iframe");
         iframe.srcdoc = buildIframeHtml(html);
 
-        // If HTML is empty, fall back to plain
         iframe.addEventListener("load", () => {
           try {
             const t = (iframe.contentWindow.document.body.innerText || "").trim();
@@ -596,6 +594,19 @@
 
       messagesBox.appendChild(item);
     }
+
+    // ✅ Receive forwarded clicks from iframe and PUSH THROUGH (same tab)
+    window.addEventListener("message", (ev) => {
+      const data = ev && ev.data ? ev.data : null;
+      if (!data || data.type !== "OPEN_EMAIL_LINK" || !data.url) return;
+
+      const url = String(data.url);
+      try {
+        window.location.href = url; // strongest push-through
+      } catch (e) {
+        window.open(url, "_blank", "noopener,noreferrer");
+      }
+    });
 
     async function fetchInbox() {
       const email = getFullEmail();
@@ -613,29 +624,27 @@
       `;
 
       try {
-        const url = `${API_URL}?email=${encodeURIComponent(email)}&limit=10&_=${Date.now()}`;
+        const url = `${API_URL}?email=${encodeURIComponent(email)}&_=${Date.now()}`;
         const res = await fetch(url, { cache: "no-store" });
+        const data = await res.json();
 
-        // Protect against HTML error pages
-        const text = await res.text();
-        let data;
-        try { data = JSON.parse(text); }
-        catch { throw new Error("Non-JSON response. Check Apps Script deploy: access=Anyone."); }
-
-        if (!data.ok) {
-          showToast("API error");
+        if (data.error) {
+          console.error("API error:", data.error);
+          showToast("Error loading message.");
           renderMessages([]);
           return;
         }
 
-        const messages = Array.isArray(data.messages) ? data.messages : [];
+        const messages = Array.isArray(data.messages) ? data.messages :
+                         Array.isArray(data) ? data : [];
+
         if (messages.length === 0) showToast("No messages found.");
-        else showToast("Loaded ✅");
+        else showToast("Loaded latest message ✅");
 
         renderMessages(messages);
       } catch (err) {
-        console.error(err);
-        showToast("Network/API error.");
+        console.error("Fetch error:", err);
+        showToast("Network error.");
         renderMessages([]);
       }
     }
@@ -647,10 +656,10 @@
     updateMessagesFor();
     generateUsername();
 
-    // Optional: auto fetch once
+    // optional auto fetch
     setTimeout(() => {
       if (getFullEmail()) fetchInbox();
-    }, 900);
+    }, 1000);
   </script>
 </body>
 </html>
