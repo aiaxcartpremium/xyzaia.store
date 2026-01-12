@@ -1,5 +1,5 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>xyzaia.mail — Quick inbox</title>
@@ -17,7 +17,7 @@
       background: radial-gradient(circle at top, #ffd9e8 0, #ffe9f2 40%, #ffeef7 70%, #ffeef7 100%);
       color: #3d1b2f;
       padding: 18px;
-      padding-bottom: 70px; /* ✅ space for fixed footer */
+      padding-bottom: 70px;
     }
 
     .page{
@@ -40,7 +40,6 @@
       border: 1px solid rgba(255, 151, 190, 0.4);
     }
 
-    /* Sticky top controls */
     .sticky-top{
       position: sticky;
       top: 0;
@@ -247,32 +246,29 @@
     }
 
     .footer-fixed{
-  position: fixed;
-  left: 50%;
-  bottom: 12px;
-  transform: translateX(-50%);
-  padding: 8px 14px;
-  border-radius: 999px;
-
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-
-  color: #b23a73;
-  background: rgba(255,255,255,0.72);
-  border: 1px solid rgba(255,151,190,0.55);
-  box-shadow: 0 10px 26px rgba(255, 73, 140, 0.25);
-  backdrop-filter: blur(10px);
-
-  z-index: 50;
-  pointer-events: none;
-}
+      position: fixed;
+      left: 50%;
+      bottom: 12px;
+      transform: translateX(-50%);
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: #b23a73;
+      background: rgba(255,255,255,0.72);
+      border: 1px solid rgba(255,151,190,0.55);
+      box-shadow: 0 10px 26px rgba(255, 73, 140, 0.25);
+      backdrop-filter: blur(10px);
+      z-index: 50;
+      pointer-events: none;
+    }
 
     .toast {
       position: fixed;
       left: 50%;
-      bottom: 54px; /* above footer */
+      bottom: 54px;
       transform: translateX(-50%);
       background: rgba(60, 17, 39, 0.92);
       color: #fff;
@@ -306,382 +302,344 @@
     }
   </style>
 </head>
+
 <body>
-  <div class="app">
-    <header class="top">
-      <div class="brand">
-        <div class="logo">X</div>
-        <div>
-          <div class="title">xyzaia.store</div>
-          <div class="sub">QUICK INBOX</div>
-        </div>
-      </div>
-    </header>
+  <div class="page">
+    <div class="app">
+      <div class="card">
+        <div class="sticky-top">
+          <div class="header">
+            <div class="logo-pill">X</div>
+            <div>
+              <div class="title-main">xyzaia.store</div>
+              <div class="title-sub">Quick Inbox · xyzaia.store</div>
+            </div>
+          </div>
 
-    <section class="panel">
-      <div class="row">
-        <input id="user" placeholder="username (e.g. dapny4yb)" />
-        <div class="suffix">@xyzaia.store</div>
-      </div>
+          <div class="section-label">Mail address</div>
+          <div class="email-row">
+            <input id="usernameInput" type="text" placeholder="username" autocomplete="off" />
+            <div class="email-domain">@xyzaia.store</div>
+          </div>
 
-      <div class="actions">
-        <button id="btnGenerate">Generate</button>
-        <button id="btnCopy" class="ghost">Copy</button>
-        <button id="btnInbox" class="primary">Get Inbox</button>
-      </div>
+          <div class="controls">
+            <button class="btn btn-secondary" id="btnGenerate">Generate</button>
+            <button class="btn btn-secondary" id="btnCopy">Copy</button>
+            <button class="btn btn-primary" id="btnInbox">Get inbox</button>
+          </div>
 
-      <div class="active">
-        <div class="label">Active</div>
-        <div id="activeEmail" class="value">—</div>
-      </div>
-    </section>
-
-    <main class="main">
-      <aside class="list">
-        <div class="listHead">
-          <div>Messages</div>
-          <button id="btnRefresh" class="ghost small">Refresh</button>
-        </div>
-        <div id="msgList" class="msgList">No messages yet</div>
-      </aside>
-
-      <section class="view">
-        <div class="viewHead">
-          <div id="viewMeta" class="meta">Select a message</div>
-          <div class="viewBtns">
-            <button id="btnOpenLink" class="primary small" disabled>Open confirm link</button>
-            <button id="btnCopyLink" class="ghost small" disabled>Copy link</button>
+          <div class="messages-header">
+            <div class="messages-title">Latest message</div>
+            <div class="messages-for" id="messagesFor">No email selected</div>
           </div>
         </div>
-        <div id="msgView" class="msgView">—</div>
-      </section>
-    </main>
 
-    <footer class="foot">Made by Aiaxcart</footer>
+        <div class="messages-box" id="messagesBox">
+          <div class="message-empty">No message yet.</div>
+        </div>
+      </div>
+    </div>
   </div>
 
+  <div class="footer-fixed">made by aiaxcart</div>
+  <div class="toast" id="toast"></div>
+
   <script>
-  // ✅ UPDATE this to your NEW Apps Script deployment URL
-  const API_URL = "https://script.google.com/macros/s/AKfycby0bAG5-3WkRBW4_rMqhmdcdCQuEqsz5282OxUKsnCUCOClXWEIeFYAzBRchrp3dVXAWg/exec";
-  const DOMAIN = "xyzaia.store";
+    // ✅ Your GAS Web App URL
+    const API_URL = "https://script.google.com/macros/s/AKfycby0bAG5-3WkRBW4_rMqhmdcdCQuEqsz5282OxUKsnCUCOClXWEIeFYAzBRchrp3dVXAWg/exec";
+    const DOMAIN = "xyzaia.store";
 
-  const usernameInput = document.getElementById("usernameInput");
-  const btnGenerate = document.getElementById("btnGenerate");
-  const btnCopy = document.getElementById("btnCopy");
-  const btnInbox = document.getElementById("btnInbox");
-  const messagesBox = document.getElementById("messagesBox");
-  const messagesFor = document.getElementById("messagesFor");
-  const toastEl = document.getElementById("toast");
+    const usernameInput = document.getElementById("usernameInput");
+    const btnGenerate = document.getElementById("btnGenerate");
+    const btnCopy = document.getElementById("btnCopy");
+    const btnInbox = document.getElementById("btnInbox");
+    const messagesBox = document.getElementById("messagesBox");
+    const messagesFor = document.getElementById("messagesFor");
+    const toastEl = document.getElementById("toast");
 
-  function showToast(text) {
-    toastEl.textContent = text;
-    toastEl.classList.add("show");
-    setTimeout(() => toastEl.classList.remove("show"), 1800);
-  }
-
-  function normalizeUsername(value) {
-    if (!value) return "";
-    let v = value.trim().toLowerCase();
-    const atIndex = v.indexOf("@");
-    if (atIndex !== -1) v = v.slice(0, atIndex);
-    v = v.replace(/[^a-z0-9._-]/g, "");
-    return v;
-  }
-
-  function getFullEmail() {
-    const username = normalizeUsername(usernameInput.value);
-    if (!username) return "";
-    return `${username}@${DOMAIN}`;
-  }
-
-  function updateMessagesFor() {
-    const email = getFullEmail();
-    messagesFor.textContent = email ? email : "No email selected";
-  }
-
-  usernameInput.addEventListener("input", () => {
-    const norm = normalizeUsername(usernameInput.value);
-    if (usernameInput.value !== norm) usernameInput.value = norm;
-    updateMessagesFor();
-  });
-
-  function generateRandomString() {
-    const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
-    let result = "";
-    for (let i = 0; i < 8; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
-    return result;
-  }
-
-  function generateUsername() {
-    const username = generateRandomString();
-    usernameInput.value = username;
-    updateMessagesFor();
-
-    messagesBox.innerHTML = `
-      <div class="message-empty">
-        Ready: <b>${getFullEmail()}</b><br><br>
-        Tap <b>Get inbox</b> to load messages.
-      </div>
-    `;
-  }
-
-  async function copyEmail() {
-    const email = getFullEmail();
-    if (!email) { showToast("Enter or generate a username first."); return; }
-
-    try {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(email);
-      } else {
-        const ta = document.createElement("textarea");
-        ta.value = email;
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand("copy");
-        document.body.removeChild(ta);
-      }
-      showToast("Email copied.");
-    } catch (e) {
-      showToast("Unable to copy.");
-    }
-  }
-
-  function formatDate(dateString) {
-    if (!dateString) return "Recently";
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString("en-US", {
-        month: "2-digit",
-        day: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true
-      });
-    } catch (e) {
-      return dateString;
-    }
-  }
-
-  function extractSender(from) {
-    if (!from) return "Unknown Sender";
-    const match = from.match(/^"?(.+?)"?\s*<|^(.+?)\s*<|^(.+?)$/);
-    return match ? (match[1] || match[2] || match[3] || from).trim() : from;
-  }
-
-  function escapeHtml(s) {
-    return String(s || "")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;");
-  }
-
-  function linkifyPlainText(plain) {
-    const safe = escapeHtml(plain).replace(/\n/g, "<br>");
-    return safe.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
-  }
-
-  // ✅ IFRAME srcdoc builder (keeps your gmail-like look, makes links open)
-  function buildIframeHtml(rawHtml) {
-    let html = String(rawHtml || "");
-
-    const inject = `
-      <base target="_blank">
-      <style>
-        :root { color-scheme: light; }
-        html, body { margin: 0; padding: 0; background: #fff; }
-        body { padding: 12px; font-family: system-ui, -apple-system, Segoe UI, sans-serif; line-height: 1.5; }
-        img, video { max-width: 100% !important; height: auto !important; }
-        table { max-width: 100% !important; width: 100% !important; }
-        td, th { word-break: break-word; }
-        a { word-break: break-all; }
-        * { box-sizing: border-box; }
-        body > table { width: 100% !important; }
-      </style>
-    `;
-
-    const hasHtmlTag = /<html[\s>]/i.test(html);
-    if (hasHtmlTag) {
-      if (/<head[\s>]/i.test(html)) {
-        html = html.replace(/<head[^>]*>/i, (m) => m + inject);
-      } else {
-        html = html.replace(/<html[^>]*>/i, (m) => m + `<head>${inject}</head>`);
-      }
-      return html;
+    function showToast(text) {
+      toastEl.textContent = text;
+      toastEl.classList.add("show");
+      setTimeout(() => toastEl.classList.remove("show"), 1800);
     }
 
-    return `<!doctype html><html><head>${inject}</head><body>${html}</body></html>`;
-  }
+    function normalizeUsername(value) {
+      if (!value) return "";
+      let v = value.trim().toLowerCase();
+      const atIndex = v.indexOf("@");
+      if (atIndex !== -1) v = v.slice(0, atIndex);
+      v = v.replace(/[^a-z0-9._-]/g, "");
+      return v;
+    }
 
-  function renderMessages(messages) {
-    messagesBox.innerHTML = "";
+    function getFullEmail() {
+      const username = normalizeUsername(usernameInput.value);
+      if (!username) return "";
+      return `${username}@${DOMAIN}`;
+    }
 
-    if (!messages || messages.length === 0) {
+    function updateMessagesFor() {
+      const email = getFullEmail();
+      messagesFor.textContent = email ? email : "No email selected";
+    }
+
+    usernameInput.addEventListener("input", () => {
+      const norm = normalizeUsername(usernameInput.value);
+      if (usernameInput.value !== norm) usernameInput.value = norm;
+      updateMessagesFor();
+    });
+
+    function generateRandomString() {
+      const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+      let result = "";
+      for (let i = 0; i < 8; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
+      return result;
+    }
+
+    function generateUsername() {
+      const username = generateRandomString();
+      usernameInput.value = username;
+      updateMessagesFor();
+
       messagesBox.innerHTML = `
         <div class="message-empty">
-          <div style="font-weight:900;color:#b23a73;">No message yet</div>
-          <div style="color:#c37a9d;font-size:12px;line-height:1.4;margin-top:8px;">
-            Send an email to this address then tap <b>Get inbox</b>.
-          </div>
+          Ready: <b>${getFullEmail()}</b><br><br>
+          Tap <b>Get inbox</b> to load messages.
         </div>
       `;
-      return;
     }
 
-    // newest first
-    const sorted = [...messages].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    const msg = sorted[0];
+    async function copyEmail() {
+      const email = getFullEmail();
+      if (!email) { showToast("Enter or generate a username first."); return; }
 
-    const sender = extractSender(msg.from);
-    const date = formatDate(msg.date);
-    const subject = msg.subject || "(no subject)";
-
-    const plain = msg.body_plain || "";
-    const html = msg.body_html || "";
-    const firstUrl = msg.first_url || "";
-
-    const hasHtml = Boolean(html && html.replace(/\s+/g, "").length > 30);
-
-    const item = document.createElement("div");
-    item.className = "message-item";
-    item.innerHTML = `
-      <div class="msg-header">
-        <div class="msg-sender">${escapeHtml(sender)}</div>
-        <div class="msg-date">${escapeHtml(date)}</div>
-      </div>
-
-      <div class="msg-subject">${escapeHtml(subject)}</div>
-
-      ${firstUrl ? `
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 2px;">
-          <button class="btn btn-primary" style="height:34px;flex:0 0 auto;padding:0 14px;text-transform:none;letter-spacing:0;"
-            id="openFirstLinkBtn">Open link</button>
-          <button class="btn btn-secondary" style="height:34px;flex:0 0 auto;padding:0 14px;text-transform:none;letter-spacing:0;"
-            id="copyFirstLinkBtn">Copy link</button>
-        </div>
-        <div style="font-size:12px;color:#b47a96;word-break:break-all;overflow-wrap:anywhere;margin-bottom:6px;">
-          ${escapeHtml(firstUrl)}
-        </div>
-      ` : ""}
-
-      <div class="msg-full-content" id="contentArea"></div>
-    `;
-
-    const content = item.querySelector("#contentArea");
-
-    function showPlain() {
-      content.innerHTML = `<div class="plain-view">${linkifyPlainText(plain)}</div>`;
-    }
-
-    function showHtml() {
-      if (!hasHtml) { showPlain(); return; }
-
-      content.innerHTML = `
-        <iframe class="email-iframe"
-          sandbox="allow-same-origin allow-popups allow-forms allow-top-navigation-by-user-activation"
-          referrerpolicy="no-referrer"></iframe>
-      `;
-
-      const iframe = content.querySelector("iframe");
-      iframe.srcdoc = buildIframeHtml(html);
-
-      iframe.addEventListener("load", () => {
-        try {
-          const t = (iframe.contentWindow.document.body.innerText || "").trim();
-          if (!t && plain && plain.trim()) showPlain();
-        } catch (e) {}
-      });
-    }
-
-    if (hasHtml) showHtml();
-    else showPlain();
-
-    messagesBox.appendChild(item);
-
-    // Buttons
-    if (firstUrl) {
-      const openBtn = item.querySelector("#openFirstLinkBtn");
-      const copyBtn = item.querySelector("#copyFirstLinkBtn");
-
-      openBtn.addEventListener("click", () => {
-        // ✅ helps vs "blank" in some browsers
-        window.open(firstUrl, "_blank", "noopener,noreferrer");
-      });
-
-      copyBtn.addEventListener("click", async () => {
-        try {
-          if (navigator.clipboard && navigator.clipboard.writeText) {
-            await navigator.clipboard.writeText(firstUrl);
-          } else {
-            const ta = document.createElement("textarea");
-            ta.value = firstUrl;
-            document.body.appendChild(ta);
-            ta.select();
-            document.execCommand("copy");
-            document.body.removeChild(ta);
-          }
-          showToast("Link copied ✅");
-        } catch(e) {
-          showToast("Copy failed");
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(email);
+        } else {
+          const ta = document.createElement("textarea");
+          ta.value = email;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand("copy");
+          document.body.removeChild(ta);
         }
-      });
+        showToast("Email copied.");
+      } catch (e) {
+        showToast("Unable to copy.");
+      }
     }
-  }
 
-  async function fetchInbox() {
-    const email = getFullEmail();
-    if (!email) { showToast("Enter or generate a username first."); return; }
+    function formatDate(dateString) {
+      if (!dateString) return "Recently";
+      try {
+        const date = new Date(dateString);
+        return date.toLocaleDateString("en-US", {
+          month: "2-digit",
+          day: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true
+        });
+      } catch (e) {
+        return dateString;
+      }
+    }
 
-    updateMessagesFor();
-    showToast("Checking: " + email);
+    function extractSender(from) {
+      if (!from) return "Unknown Sender";
+      const match = from.match(/^"?(.+?)"?\s*<|^(.+?)\s*<|^(.+?)$/);
+      return match ? (match[1] || match[2] || match[3] || from).trim() : from;
+    }
 
-    messagesBox.innerHTML = `
-      <div class="message-empty" style="padding:18px 16px;">
-        <div style="height:10px;border-radius:999px;background:#ffe6f2;margin-bottom:10px;"></div>
-        <div style="height:10px;border-radius:999px;background:#ffe6f2;width:70%;"></div>
-        <div style="margin-top:14px;color:#c37a9d;">Loading message…</div>
-      </div>
-    `;
+    function escapeHtml(s) {
+      return String(s || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    }
 
-    try {
-      const url = `${API_URL}?email=${encodeURIComponent(email)}&limit=10&_=${Date.now()}`;
-      const res = await fetch(url, { cache: "no-store" });
+    function linkifyPlainText(plain) {
+      const safe = escapeHtml(plain).replace(/\n/g, "<br>");
+      return safe.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
+    }
 
-      // If Apps Script returns HTML error page, catch it here
-      const text = await res.text();
-      let data;
-      try { data = JSON.parse(text); }
-      catch { throw new Error("Non-JSON response (check deploy access = Anyone)."); }
+    function buildIframeHtml(rawHtml) {
+      let html = String(rawHtml || "");
+      const inject = `
+        <base target="_blank">
+        <style>
+          :root { color-scheme: light; }
+          html, body { margin: 0; padding: 0; background: #fff; }
+          body { padding: 12px; font-family: system-ui, -apple-system, Segoe UI, sans-serif; line-height: 1.5; }
+          img, video { max-width: 100% !important; height: auto !important; }
+          table { max-width: 100% !important; width: 100% !important; }
+          td, th { word-break: break-word; }
+          a { word-break: break-all; }
+          * { box-sizing: border-box; }
+          body > table { width: 100% !important; }
+        </style>
+      `;
+      if (/<html[\s>]/i.test(html)) {
+        if (/<head[\s>]/i.test(html)) html = html.replace(/<head[^>]*>/i, (m) => m + inject);
+        else html = html.replace(/<html[^>]*>/i, (m) => m + `<head>${inject}</head>`);
+        return html;
+      }
+      return `<!doctype html><html><head>${inject}</head><body>${html}</body></html>`;
+    }
 
-      if (!data.ok) {
-        showToast("API error");
-        renderMessages([]);
+    function renderMessages(messages) {
+      messagesBox.innerHTML = "";
+
+      if (!messages || messages.length === 0) {
+        messagesBox.innerHTML = `
+          <div class="message-empty">
+            <div style="font-weight:900;color:#b23a73;">No message yet</div>
+            <div style="color:#c37a9d;font-size:12px;line-height:1.4;margin-top:8px;">
+              Send an email to this address then tap <b>Get inbox</b>.
+            </div>
+          </div>
+        `;
         return;
       }
 
-      const messages = Array.isArray(data.messages) ? data.messages : [];
-      if (!messages.length) showToast("No messages found.");
-      else showToast("Loaded ✅");
+      const sorted = [...messages].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      const msg = sorted[0];
 
-      renderMessages(messages);
-    } catch (err) {
-      console.error(err);
-      showToast("Network/API error.");
-      renderMessages([]);
+      const sender = extractSender(msg.from);
+      const date = formatDate(msg.date);
+      const subject = msg.subject || "(no subject)";
+      const plain = msg.body_plain || "";
+      const html = msg.body_html || "";
+      const firstUrl = msg.first_url || "";
+      const hasHtml = Boolean(html && html.replace(/\s+/g, "").length > 30);
+
+      const item = document.createElement("div");
+      item.className = "message-item";
+      item.innerHTML = `
+        <div class="msg-header">
+          <div class="msg-sender">${escapeHtml(sender)}</div>
+          <div class="msg-date">${escapeHtml(date)}</div>
+        </div>
+        <div class="msg-subject">${escapeHtml(subject)}</div>
+
+        ${firstUrl ? `
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 2px;">
+            <button class="btn btn-primary" style="height:34px;flex:0 0 auto;padding:0 14px;text-transform:none;letter-spacing:0;"
+              id="openFirstLinkBtn">Open link</button>
+            <button class="btn btn-secondary" style="height:34px;flex:0 0 auto;padding:0 14px;text-transform:none;letter-spacing:0;"
+              id="copyFirstLinkBtn">Copy link</button>
+          </div>
+          <div style="font-size:12px;color:#b47a96;word-break:break-all;overflow-wrap:anywhere;margin-bottom:6px;">
+            ${escapeHtml(firstUrl)}
+          </div>
+        ` : ""}
+
+        <div class="msg-full-content" id="contentArea"></div>
+      `;
+
+      const content = item.querySelector("#contentArea");
+
+      function showPlain() {
+        content.innerHTML = `<div class="plain-view">${linkifyPlainText(plain)}</div>`;
+      }
+
+      function showHtml() {
+        if (!hasHtml) { showPlain(); return; }
+        content.innerHTML = `
+          <iframe class="email-iframe"
+            sandbox="allow-same-origin allow-popups allow-forms allow-top-navigation-by-user-activation"
+            referrerpolicy="no-referrer"></iframe>
+        `;
+        const iframe = content.querySelector("iframe");
+        iframe.srcdoc = buildIframeHtml(html);
+      }
+
+      if (hasHtml) showHtml(); else showPlain();
+      messagesBox.appendChild(item);
+
+      if (firstUrl) {
+        const openBtn = item.querySelector("#openFirstLinkBtn");
+        const copyBtn = item.querySelector("#copyFirstLinkBtn");
+
+        openBtn.addEventListener("click", () => {
+          window.open(firstUrl, "_blank", "noopener,noreferrer");
+        });
+
+        copyBtn.addEventListener("click", async () => {
+          try {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+              await navigator.clipboard.writeText(firstUrl);
+            } else {
+              const ta = document.createElement("textarea");
+              ta.value = firstUrl;
+              document.body.appendChild(ta);
+              ta.select();
+              document.execCommand("copy");
+              document.body.removeChild(ta);
+            }
+            showToast("Link copied ✅");
+          } catch(e) {
+            showToast("Copy failed");
+          }
+        });
+      }
     }
-  }
 
-  btnGenerate.addEventListener("click", generateUsername);
-  btnCopy.addEventListener("click", copyEmail);
-  btnInbox.addEventListener("click", fetchInbox);
+    async function fetchInbox() {
+      const email = getFullEmail();
+      if (!email) { showToast("Enter or generate a username first."); return; }
 
-  updateMessagesFor();
-  generateUsername();
+      updateMessagesFor();
+      showToast("Checking: " + email);
 
-  // optional auto fetch
-  setTimeout(() => {
-    if (getFullEmail()) fetchInbox();
-  }, 900);
-</script>
+      messagesBox.innerHTML = `
+        <div class="message-empty" style="padding:18px 16px;">
+          <div style="height:10px;border-radius:999px;background:#ffe6f2;margin-bottom:10px;"></div>
+          <div style="height:10px;border-radius:999px;background:#ffe6f2;width:70%;"></div>
+          <div style="margin-top:14px;color:#c37a9d;">Loading message…</div>
+        </div>
+      `;
+
+      try {
+        const url = `${API_URL}?email=${encodeURIComponent(email)}&limit=10&_=${Date.now()}`;
+        const res = await fetch(url, { cache: "no-store" });
+        const text = await res.text();
+
+        let data;
+        try { data = JSON.parse(text); }
+        catch { throw new Error("Non-JSON response. Check GAS deploy = Anyone."); }
+
+        if (!data.ok) {
+          showToast("API error");
+          renderMessages([]);
+          return;
+        }
+
+        const messages = Array.isArray(data.messages) ? data.messages : [];
+        if (!messages.length) showToast("No messages found.");
+        else showToast("Loaded ✅");
+
+        renderMessages(messages);
+      } catch (err) {
+        console.error(err);
+        showToast("Network/API error.");
+        renderMessages([]);
+      }
+    }
+
+    btnGenerate.addEventListener("click", generateUsername);
+    btnCopy.addEventListener("click", copyEmail);
+    btnInbox.addEventListener("click", fetchInbox);
+
+    updateMessagesFor();
+    generateUsername();
+
+    // optional auto fetch
+    setTimeout(() => {
+      if (getFullEmail()) fetchInbox();
+    }, 900);
+  </script>
 </body>
 </html>
