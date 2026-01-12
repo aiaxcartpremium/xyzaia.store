@@ -1,10 +1,310 @@
 <!doctype html>
 <html>
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>xyzaia.store • Quick Inbox</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8" />
+  <title>xyzaia.mail — Quick inbox</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body{
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #ffd9e8 0, #ffe9f2 40%, #ffeef7 70%, #ffeef7 100%);
+      color: #3d1b2f;
+      padding: 18px;
+      padding-bottom: 70px; /* ✅ space for fixed footer */
+    }
+
+    .page{
+      width: 100%;
+      max-width: 1100px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .app { width: 100%; }
+
+    .card {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 26px;
+      box-shadow: 0 18px 40px rgba(255, 137, 178, 0.35);
+      padding: 16px 16px 16px;
+      backdrop-filter: blur(9px);
+      border: 1px solid rgba(255, 151, 190, 0.4);
+    }
+
+    /* Sticky top controls */
+    .sticky-top{
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(10px);
+      border-radius: 22px;
+      padding: 6px 4px 12px;
+    }
+
+    .header { display: flex; gap: 14px; align-items: center; margin-bottom: 10px; }
+
+    .logo-pill {
+      width: 48px; height: 48px; border-radius: 18px;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, #ff6fa5, #ff98c2);
+      color: #fff; font-size: 24px; font-weight: 800;
+      box-shadow: 0 10px 22px rgba(255, 111, 165, 0.5);
+      flex: 0 0 auto;
+    }
+
+    .title-main { font-weight: 900; letter-spacing: 0.02em; font-size: 20px; margin-bottom: 2px; }
+    .title-sub { font-size: 12px; text-transform: uppercase; letter-spacing: 0.14em; color: #b23a73; font-weight: 800; }
+
+    .section-label {
+      font-size: 11px; font-weight: 800; letter-spacing: 0.12em;
+      color: #b23a73; text-transform: uppercase; margin-bottom: 6px; margin-top: 2px;
+      padding: 0 4px;
+    }
+
+    .email-row { display: flex; align-items: stretch; gap: 6px; margin-bottom: 12px; padding: 0 4px; }
+
+    .email-row input {
+      flex: 1;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 133, 185, 0.8);
+      padding: 10px 14px;
+      font-size: 14px;
+      outline: none;
+      background: #fff9fc;
+      transition: box-shadow 0.15s ease, border-color 0.15s ease;
+      min-width: 0;
+    }
+
+    .email-row input:focus {
+      border-color: #ff6fa5;
+      box-shadow: 0 0 0 2px rgba(255, 169, 203, 0.55);
+    }
+
+    .email-domain {
+      padding: 0 13px;
+      border-radius: 999px;
+      background: #ffeff6;
+      border: 1px solid rgba(255, 151, 190, 0.9);
+      display: inline-flex;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: #b23a73;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .controls { display: flex; gap: 8px; margin-bottom: 12px; padding: 0 4px; }
+
+    .btn {
+      flex: 1;
+      height: 38px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+    }
+    .btn:active { transform: translateY(1px); box-shadow: none; }
+
+    .btn-secondary {
+      background: #ffe6f2;
+      color: #b23a73;
+      box-shadow: 0 8px 18px rgba(255, 180, 206, 0.5);
+    }
+    .btn-secondary:hover { background: #ffd6ec; }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #ff6fa5, #ff4590);
+      color: #fff;
+      box-shadow: 0 10px 24px rgba(255, 73, 140, 0.7);
+    }
+    .btn-primary:hover { filter: brightness(1.03); }
+
+    .messages-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin: 2px 0 8px;
+      gap: 10px;
+      padding: 0 4px;
+    }
+
+    .messages-title {
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #b23a73;
+    }
+
+    .messages-for {
+      font-size: 11px;
+      color: #ba5c86;
+      max-width: 70%;
+      text-align: right;
+      word-break: break-all;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .messages-box {
+      border-radius: 18px;
+      background: #fff7fb;
+      border: 1px dashed rgba(255, 151, 190, 0.7);
+      padding: 15px 14px 80px;
+      max-height: 72vh;
+      overflow-y: auto;
+      font-size: 13px;
+      min-height: 240px;
+      margin-top: 10px;
+    }
+
+    .message-empty {
+      color: #c37a9d;
+      font-size: 13px;
+      text-align: center;
+      padding: 26px 18px;
+      line-height: 1.45;
+    }
+
+    .message-item {
+      background: white;
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 4px 12px rgba(255, 180, 206, 0.2);
+      border: 1px solid rgba(255, 204, 225, 0.7);
+    }
+
+    .msg-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .msg-sender { font-weight: 900; color: #3d1b2f; font-size: 14px; }
+    .msg-date { font-size: 11px; color: #b47a96; background: #fff7fb; padding: 4px 10px; border-radius: 12px; }
+
+    .msg-subject {
+      font-size: 16px;
+      font-weight: 800;
+      color: #b23a73;
+      margin-bottom: 10px;
+      line-height: 1.35;
+      word-break: break-word;
+    }
+
+    .msg-full-content {
+      margin-top: 10px;
+      padding-top: 12px;
+      border-top: 1px dashed rgba(255, 151, 190, 0.5);
+      color: #3d1b2f;
+      line-height: 1.6;
+      font-size: 13px;
+      white-space: normal;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+      max-width: 100%;
+    }
+
+    .plain-view {
+      white-space: pre-wrap;
+      background: #fff7fb;
+      border: 1px solid rgba(255, 204, 225, 0.8);
+      border-radius: 14px;
+      padding: 12px;
+    }
+
+    .plain-view a {
+      color: #ff4590;
+      text-decoration: underline;
+      word-break: break-all;
+      overflow-wrap: anywhere;
+    }
+
+    .email-iframe {
+      width: 100%;
+      height: 62vh;
+      border: 1px solid rgba(255, 204, 225, 0.8);
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    .footer-fixed{
+  position: fixed;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+  padding: 8px 14px;
+  border-radius: 999px;
+
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+
+  color: #b23a73;
+  background: rgba(255,255,255,0.72);
+  border: 1px solid rgba(255,151,190,0.55);
+  box-shadow: 0 10px 26px rgba(255, 73, 140, 0.25);
+  backdrop-filter: blur(10px);
+
+  z-index: 50;
+  pointer-events: none;
+}
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 54px; /* above footer */
+      transform: translateX(-50%);
+      background: rgba(60, 17, 39, 0.92);
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: 12px;
+      box-shadow: 0 10px 24px rgba(60, 17, 39, 0.7);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.18s ease, transform 0.18s ease;
+      z-index: 60;
+    }
+    .toast.show { opacity: 1; transform: translate(-50%, -4px); }
+
+    @media (max-width: 600px) {
+      body { padding: 12px; padding-bottom: 70px; }
+      .card { padding: 16px; }
+      .controls { flex-wrap: nowrap; }
+      .btn { font-size: 12px; padding: 0 8px; }
+      .email-domain { font-size: 12px; padding: 0 10px; }
+      .messages-header { flex-direction: column; align-items: flex-start; gap: 4px; }
+      .messages-for { max-width: 100%; text-align: left; font-size: 10px; }
+      .message-item { padding: 14px; }
+      .email-iframe { height: 55vh; }
+    }
+
+    @media (max-width: 400px) {
+      .controls { flex-wrap: wrap; }
+      .btn { min-width: calc(33.333% - 6px); font-size: 11px; }
+      .email-domain { font-size: 11px; padding: 0 8px; }
+    }
+  </style>
 </head>
 <body>
   <div class="app">
