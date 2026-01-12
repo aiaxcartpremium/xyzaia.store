@@ -345,301 +345,302 @@
   <div class="toast" id="toast"></div>
 
   <script>
-    // ✅ Your GAS Web App URL
-    const API_URL = "https://script.google.com/macros/s/AKfycby0bAG5-3WkRBW4_rMqhmdcdCQuEqsz5282OxUKsnCUCOClXWEIeFYAzBRchrp3dVXAWg/exec";
-    const DOMAIN = "xyzaia.store";
+  const API_URL = "https://script.google.com/macros/s/AKfycby0bAG5-3WkRBW4_rMqhmdcdCQuEqsz5282OxUKsnCUCOClXWEIeFYAzBRchrp3dVXAWg/exec";
+  const DOMAIN = "xyzaia.store";
 
-    const usernameInput = document.getElementById("usernameInput");
-    const btnGenerate = document.getElementById("btnGenerate");
-    const btnCopy = document.getElementById("btnCopy");
-    const btnInbox = document.getElementById("btnInbox");
-    const messagesBox = document.getElementById("messagesBox");
-    const messagesFor = document.getElementById("messagesFor");
-    const toastEl = document.getElementById("toast");
+  const usernameInput = document.getElementById("usernameInput");
+  const btnGenerate = document.getElementById("btnGenerate");
+  const btnCopy = document.getElementById("btnCopy");
+  const btnInbox = document.getElementById("btnInbox");
+  const messagesBox = document.getElementById("messagesBox");
+  const messagesFor = document.getElementById("messagesFor");
+  const toastEl = document.getElementById("toast");
 
-    function showToast(text) {
-      toastEl.textContent = text;
-      toastEl.classList.add("show");
-      setTimeout(() => toastEl.classList.remove("show"), 1800);
+  function showToast(text) {
+    toastEl.textContent = text;
+    toastEl.classList.add("show");
+    setTimeout(() => toastEl.classList.remove("show"), 1800);
+  }
+
+  function normalizeUsername(value) {
+    if (!value) return "";
+    let v = value.trim().toLowerCase();
+    const atIndex = v.indexOf("@");
+    if (atIndex !== -1) v = v.slice(0, atIndex);
+    v = v.replace(/[^a-z0-9._-]/g, "");
+    return v;
+  }
+
+  function getFullEmail() {
+    const username = normalizeUsername(usernameInput.value);
+    if (!username) return "";
+    return `${username}@${DOMAIN}`;
+  }
+
+  function updateMessagesFor() {
+    const email = getFullEmail();
+    messagesFor.textContent = email ? email : "No email selected";
+  }
+
+  usernameInput.addEventListener("input", () => {
+    const norm = normalizeUsername(usernameInput.value);
+    if (usernameInput.value !== norm) usernameInput.value = norm;
+    updateMessagesFor();
+  });
+
+  function generateRandomString() {
+    const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+    let result = "";
+    for (let i = 0; i < 8; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
+    return result;
+  }
+
+  function generateUsername() {
+    usernameInput.value = generateRandomString();
+    updateMessagesFor();
+    messagesBox.innerHTML = `
+      <div class="message-empty">
+        Ready: <b>${getFullEmail()}</b><br><br>
+        Tap <b>Get inbox</b> to load messages.
+      </div>
+    `;
+  }
+
+  async function copyEmail() {
+    const email = getFullEmail();
+    if (!email) { showToast("Enter or generate a username first."); return; }
+
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(email);
+      } else {
+        const ta = document.createElement("textarea");
+        ta.value = email;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+      }
+      showToast("Email copied.");
+    } catch (e) {
+      showToast("Unable to copy.");
     }
+  }
 
-    function normalizeUsername(value) {
-      if (!value) return "";
-      let v = value.trim().toLowerCase();
-      const atIndex = v.indexOf("@");
-      if (atIndex !== -1) v = v.slice(0, atIndex);
-      v = v.replace(/[^a-z0-9._-]/g, "");
-      return v;
+  function formatDate(dateString) {
+    if (!dateString) return "Recently";
+    try {
+      const d = new Date(dateString);
+      return d.toLocaleDateString("en-US", {
+        month: "2-digit", day: "2-digit", year: "numeric",
+        hour: "2-digit", minute: "2-digit", hour12: true
+      });
+    } catch {
+      return dateString;
     }
+  }
 
-    function getFullEmail() {
-      const username = normalizeUsername(usernameInput.value);
-      if (!username) return "";
-      return `${username}@${DOMAIN}`;
+  function extractSender(from) {
+    if (!from) return "Unknown Sender";
+    const match = from.match(/^"?(.+?)"?\s*<|^(.+?)\s*<|^(.+?)$/);
+    return match ? (match[1] || match[2] || match[3] || from).trim() : from;
+  }
+
+  function escapeHtml(s) {
+    return String(s || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  // ✅ clickable links in plain view
+  function linkifyPlainText(plain) {
+    const safe = escapeHtml(plain).replace(/\n/g, "<br>");
+    return safe.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
+  }
+
+  // ✅ Extract ALL urls from a text/html string
+  function extractUrls(str) {
+    const s = String(str || "");
+    const urls = s.match(/https?:\/\/[^\s"'<>]+/g) || [];
+    // de-dup
+    return [...new Set(urls)];
+  }
+
+  // ✅ choose the "real" confirm/verify/reset url (not fonts/images/assets)
+  function pickConfirmUrl(urls) {
+    const badExt = /\.(png|jpg|jpeg|gif|webp|svg|ico|woff2?|ttf|otf|css|js)(\?|#|$)/i;
+
+    // 1) Prefer URLs that look like confirm/verify/reset
+    const preferred = urls.filter(u =>
+      !badExt.test(u) &&
+      /(verify|confirm|activate|auth|reset|signin|login|magic|token|code|account|security)/i.test(u)
+    );
+    if (preferred.length) return preferred[0];
+
+    // 2) Otherwise, first url that's not an asset
+    const ok = urls.filter(u => !badExt.test(u) && !/cdn\.openai\.com\/common\/fonts/i.test(u));
+    return ok[0] || "";
+  }
+
+  function buildIframeHtml(rawHtml) {
+    let html = String(rawHtml || "");
+
+    // ✅ force links to open in new tab
+    const inject = `
+      <base target="_blank">
+      <style>
+        :root { color-scheme: light; }
+        html, body { margin: 0; padding: 0; background: #fff; }
+        body { padding: 12px; font-family: system-ui, -apple-system, Segoe UI, sans-serif; line-height: 1.5; }
+        img, video { max-width: 100% !important; height: auto !important; }
+        table { max-width: 100% !important; width: 100% !important; }
+        td, th { word-break: break-word; }
+        a { word-break: break-all; }
+        * { box-sizing: border-box; }
+        body > table { width: 100% !important; }
+      </style>
+    `;
+
+    if (/<html[\s>]/i.test(html)) {
+      if (/<head[\s>]/i.test(html)) html = html.replace(/<head[^>]*>/i, (m) => m + inject);
+      else html = html.replace(/<html[^>]*>/i, (m) => m + `<head>${inject}</head>`);
+      return html;
     }
+    return `<!doctype html><html><head>${inject}</head><body>${html}</body></html>`;
+  }
 
-    function updateMessagesFor() {
-      const email = getFullEmail();
-      messagesFor.textContent = email ? email : "No email selected";
-    }
+  function renderMessages(messages) {
+    messagesBox.innerHTML = "";
 
-    usernameInput.addEventListener("input", () => {
-      const norm = normalizeUsername(usernameInput.value);
-      if (usernameInput.value !== norm) usernameInput.value = norm;
-      updateMessagesFor();
-    });
-
-    function generateRandomString() {
-      const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
-      let result = "";
-      for (let i = 0; i < 8; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
-      return result;
-    }
-
-    function generateUsername() {
-      const username = generateRandomString();
-      usernameInput.value = username;
-      updateMessagesFor();
-
+    if (!messages || messages.length === 0) {
       messagesBox.innerHTML = `
         <div class="message-empty">
-          Ready: <b>${getFullEmail()}</b><br><br>
-          Tap <b>Get inbox</b> to load messages.
+          <div style="font-weight:900;color:#b23a73;">No message yet</div>
+          <div style="color:#c37a9d;font-size:12px;line-height:1.4;margin-top:8px;">
+            Send an email to this address then tap <b>Get inbox</b>.
+          </div>
         </div>
       `;
+      return;
     }
 
-    async function copyEmail() {
-      const email = getFullEmail();
-      if (!email) { showToast("Enter or generate a username first."); return; }
+    const sorted = [...messages].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    const msg = sorted[0];
 
-      try {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          await navigator.clipboard.writeText(email);
-        } else {
-          const ta = document.createElement("textarea");
-          ta.value = email;
-          document.body.appendChild(ta);
-          ta.select();
-          document.execCommand("copy");
-          document.body.removeChild(ta);
-        }
-        showToast("Email copied.");
-      } catch (e) {
-        showToast("Unable to copy.");
+    const sender = extractSender(msg.from);
+    const date = formatDate(msg.date);
+    const subject = msg.subject || "(no subject)";
+
+    const plain = msg.body_plain || msg.body || "";
+    const html = msg.body_html || "";
+
+    // ✅ find the right confirm/verify link
+    const urls = [
+      ...extractUrls(plain),
+      ...extractUrls(html)
+    ];
+    const confirmUrl = pickConfirmUrl(urls);
+
+    const hasHtml = Boolean(html && html.replace(/\s+/g, "").length > 30);
+
+    const item = document.createElement("div");
+    item.className = "message-item";
+
+    item.innerHTML = `
+      <div class="msg-header">
+        <div class="msg-sender">${escapeHtml(sender)}</div>
+        <div class="msg-date">${escapeHtml(date)}</div>
+      </div>
+      <div class="msg-subject">${escapeHtml(subject)}</div>
+
+      ${
+        confirmUrl
+          ? `<div style="margin:6px 0 10px;font-size:13px;">
+              <a href="${escapeHtml(confirmUrl)}" target="_blank" rel="noopener noreferrer"
+                 style="display:inline-block;padding:10px 14px;border-radius:999px;background:linear-gradient(135deg,#ff6fa5,#ff4590);color:#fff;font-weight:800;text-decoration:none;">
+                Open confirmation link
+              </a>
+            </div>`
+          : ``
       }
-    }
 
-    function formatDate(dateString) {
-      if (!dateString) return "Recently";
-      try {
-        const date = new Date(dateString);
-        return date.toLocaleDateString("en-US", {
-          month: "2-digit",
-          day: "2-digit",
-          year: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: true
-        });
-      } catch (e) {
-        return dateString;
-      }
-    }
+      <div class="msg-full-content" id="contentArea"></div>
+    `;
 
-    function extractSender(from) {
-      if (!from) return "Unknown Sender";
-      const match = from.match(/^"?(.+?)"?\s*<|^(.+?)\s*<|^(.+?)$/);
-      return match ? (match[1] || match[2] || match[3] || from).trim() : from;
-    }
+    const content = item.querySelector("#contentArea");
 
-    function escapeHtml(s) {
-      return String(s || "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
-    }
-
-    function linkifyPlainText(plain) {
-      const safe = escapeHtml(plain).replace(/\n/g, "<br>");
-      return safe.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
-    }
-
-    function buildIframeHtml(rawHtml) {
-      let html = String(rawHtml || "");
-      const inject = `
-        <base target="_blank">
-        <style>
-          :root { color-scheme: light; }
-          html, body { margin: 0; padding: 0; background: #fff; }
-          body { padding: 12px; font-family: system-ui, -apple-system, Segoe UI, sans-serif; line-height: 1.5; }
-          img, video { max-width: 100% !important; height: auto !important; }
-          table { max-width: 100% !important; width: 100% !important; }
-          td, th { word-break: break-word; }
-          a { word-break: break-all; }
-          * { box-sizing: border-box; }
-          body > table { width: 100% !important; }
-        </style>
+    if (hasHtml) {
+      content.innerHTML = `
+        <iframe class="email-iframe"
+          sandbox="allow-same-origin allow-popups allow-forms allow-top-navigation-by-user-activation"
+          referrerpolicy="no-referrer"></iframe>
       `;
-      if (/<html[\s>]/i.test(html)) {
-        if (/<head[\s>]/i.test(html)) html = html.replace(/<head[^>]*>/i, (m) => m + inject);
-        else html = html.replace(/<html[^>]*>/i, (m) => m + `<head>${inject}</head>`);
-        return html;
-      }
-      return `<!doctype html><html><head>${inject}</head><body>${html}</body></html>`;
+      const iframe = content.querySelector("iframe");
+      iframe.srcdoc = buildIframeHtml(html);
+    } else {
+      content.innerHTML = `<div class="plain-view">${linkifyPlainText(plain)}</div>`;
     }
 
-    function renderMessages(messages) {
-      messagesBox.innerHTML = "";
+    messagesBox.appendChild(item);
 
-      if (!messages || messages.length === 0) {
-        messagesBox.innerHTML = `
-          <div class="message-empty">
-            <div style="font-weight:900;color:#b23a73;">No message yet</div>
-            <div style="color:#c37a9d;font-size:12px;line-height:1.4;margin-top:8px;">
-              Send an email to this address then tap <b>Get inbox</b>.
-            </div>
-          </div>
-        `;
+    // ✅ OPTIONAL auto-open (uncomment if gusto mo automatic open agad)
+    // if (confirmUrl) window.open(confirmUrl, "_blank", "noopener,noreferrer");
+  }
+
+  async function fetchInbox() {
+    const email = getFullEmail();
+    if (!email) { showToast("Enter or generate a username first."); return; }
+
+    updateMessagesFor();
+    showToast("Checking: " + email);
+
+    messagesBox.innerHTML = `
+      <div class="message-empty" style="padding:18px 16px;">
+        <div style="height:10px;border-radius:999px;background:#ffe6f2;margin-bottom:10px;"></div>
+        <div style="height:10px;border-radius:999px;background:#ffe6f2;width:70%;"></div>
+        <div style="margin-top:14px;color:#c37a9d;">Loading message…</div>
+      </div>
+    `;
+
+    try {
+      const url = `${API_URL}?email=${encodeURIComponent(email)}&limit=10&_=${Date.now()}`;
+      const res = await fetch(url, { cache: "no-store" });
+      const text = await res.text();
+
+      let data;
+      try { data = JSON.parse(text); }
+      catch { throw new Error("Non-JSON response. Check GAS deploy access = Anyone."); }
+
+      if (!data.ok) {
+        showToast("API error");
+        renderMessages([]);
         return;
       }
 
-      const sorted = [...messages].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-      const msg = sorted[0];
+      const messages = Array.isArray(data.messages) ? data.messages : [];
+      if (!messages.length) showToast("No messages found.");
+      else showToast("Loaded ✅");
 
-      const sender = extractSender(msg.from);
-      const date = formatDate(msg.date);
-      const subject = msg.subject || "(no subject)";
-      const plain = msg.body_plain || "";
-      const html = msg.body_html || "";
-      const firstUrl = msg.first_url || "";
-      const hasHtml = Boolean(html && html.replace(/\s+/g, "").length > 30);
-
-      const item = document.createElement("div");
-      item.className = "message-item";
-      item.innerHTML = `
-        <div class="msg-header">
-          <div class="msg-sender">${escapeHtml(sender)}</div>
-          <div class="msg-date">${escapeHtml(date)}</div>
-        </div>
-        <div class="msg-subject">${escapeHtml(subject)}</div>
-
-        ${firstUrl ? `
-          <div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 2px;">
-            <button class="btn btn-primary" style="height:34px;flex:0 0 auto;padding:0 14px;text-transform:none;letter-spacing:0;"
-              id="openFirstLinkBtn">Open link</button>
-            <button class="btn btn-secondary" style="height:34px;flex:0 0 auto;padding:0 14px;text-transform:none;letter-spacing:0;"
-              id="copyFirstLinkBtn">Copy link</button>
-          </div>
-          <div style="font-size:12px;color:#b47a96;word-break:break-all;overflow-wrap:anywhere;margin-bottom:6px;">
-            ${escapeHtml(firstUrl)}
-          </div>
-        ` : ""}
-
-        <div class="msg-full-content" id="contentArea"></div>
-      `;
-
-      const content = item.querySelector("#contentArea");
-
-      function showPlain() {
-        content.innerHTML = `<div class="plain-view">${linkifyPlainText(plain)}</div>`;
-      }
-
-      function showHtml() {
-        if (!hasHtml) { showPlain(); return; }
-        content.innerHTML = `
-          <iframe class="email-iframe"
-            sandbox="allow-same-origin allow-popups allow-forms allow-top-navigation-by-user-activation"
-            referrerpolicy="no-referrer"></iframe>
-        `;
-        const iframe = content.querySelector("iframe");
-        iframe.srcdoc = buildIframeHtml(html);
-      }
-
-      if (hasHtml) showHtml(); else showPlain();
-      messagesBox.appendChild(item);
-
-      if (firstUrl) {
-        const openBtn = item.querySelector("#openFirstLinkBtn");
-        const copyBtn = item.querySelector("#copyFirstLinkBtn");
-
-        openBtn.addEventListener("click", () => {
-          window.open(firstUrl, "_blank", "noopener,noreferrer");
-        });
-
-        copyBtn.addEventListener("click", async () => {
-          try {
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-              await navigator.clipboard.writeText(firstUrl);
-            } else {
-              const ta = document.createElement("textarea");
-              ta.value = firstUrl;
-              document.body.appendChild(ta);
-              ta.select();
-              document.execCommand("copy");
-              document.body.removeChild(ta);
-            }
-            showToast("Link copied ✅");
-          } catch(e) {
-            showToast("Copy failed");
-          }
-        });
-      }
+      renderMessages(messages);
+    } catch (err) {
+      console.error(err);
+      showToast("Network/API error.");
+      renderMessages([]);
     }
+  }
 
-    async function fetchInbox() {
-      const email = getFullEmail();
-      if (!email) { showToast("Enter or generate a username first."); return; }
+  btnGenerate.addEventListener("click", generateUsername);
+  btnCopy.addEventListener("click", copyEmail);
+  btnInbox.addEventListener("click", fetchInbox);
 
-      updateMessagesFor();
-      showToast("Checking: " + email);
+  updateMessagesFor();
+  generateUsername();
 
-      messagesBox.innerHTML = `
-        <div class="message-empty" style="padding:18px 16px;">
-          <div style="height:10px;border-radius:999px;background:#ffe6f2;margin-bottom:10px;"></div>
-          <div style="height:10px;border-radius:999px;background:#ffe6f2;width:70%;"></div>
-          <div style="margin-top:14px;color:#c37a9d;">Loading message…</div>
-        </div>
-      `;
-
-      try {
-        const url = `${API_URL}?email=${encodeURIComponent(email)}&limit=10&_=${Date.now()}`;
-        const res = await fetch(url, { cache: "no-store" });
-        const text = await res.text();
-
-        let data;
-        try { data = JSON.parse(text); }
-        catch { throw new Error("Non-JSON response. Check GAS deploy = Anyone."); }
-
-        if (!data.ok) {
-          showToast("API error");
-          renderMessages([]);
-          return;
-        }
-
-        const messages = Array.isArray(data.messages) ? data.messages : [];
-        if (!messages.length) showToast("No messages found.");
-        else showToast("Loaded ✅");
-
-        renderMessages(messages);
-      } catch (err) {
-        console.error(err);
-        showToast("Network/API error.");
-        renderMessages([]);
-      }
-    }
-
-    btnGenerate.addEventListener("click", generateUsername);
-    btnCopy.addEventListener("click", copyEmail);
-    btnInbox.addEventListener("click", fetchInbox);
-
-    updateMessagesFor();
-    generateUsername();
-
-    // optional auto fetch
-    setTimeout(() => {
-      if (getFullEmail()) fetchInbox();
-    }, 900);
-  </script>
+  // optional auto fetch
+  setTimeout(() => {
+    if (getFullEmail()) fetchInbox();
+  }, 900);
+</script>
 </body>
 </html>
