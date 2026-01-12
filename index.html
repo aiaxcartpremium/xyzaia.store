@@ -17,7 +17,7 @@
       background: radial-gradient(circle at top, #ffd9e8 0, #ffe9f2 40%, #ffeef7 70%, #ffeef7 100%);
       color: #3d1b2f;
       padding: 18px;
-      padding-bottom: 70px;
+      padding-bottom: 70px; /* ✅ space for fixed footer */
     }
 
     .page{
@@ -40,6 +40,7 @@
       border: 1px solid rgba(255, 151, 190, 0.4);
     }
 
+    /* Sticky top controls */
     .sticky-top{
       position: sticky;
       top: 0;
@@ -246,29 +247,32 @@
     }
 
     .footer-fixed{
-      position: fixed;
-      left: 50%;
-      bottom: 12px;
-      transform: translateX(-50%);
-      padding: 8px 14px;
-      border-radius: 999px;
-      font-size: 11px;
-      font-weight: 900;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      color: #b23a73;
-      background: rgba(255,255,255,0.72);
-      border: 1px solid rgba(255,151,190,0.55);
-      box-shadow: 0 10px 26px rgba(255, 73, 140, 0.25);
-      backdrop-filter: blur(10px);
-      z-index: 50;
-      pointer-events: none;
-    }
+  position: fixed;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+  padding: 8px 14px;
+  border-radius: 999px;
+
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+
+  color: #b23a73;
+  background: rgba(255,255,255,0.72);
+  border: 1px solid rgba(255,151,190,0.55);
+  box-shadow: 0 10px 26px rgba(255, 73, 140, 0.25);
+  backdrop-filter: blur(10px);
+
+  z-index: 50;
+  pointer-events: none;
+}
 
     .toast {
       position: fixed;
       left: 50%;
-      bottom: 54px;
+      bottom: 54px; /* above footer */
       transform: translateX(-50%);
       background: rgba(60, 17, 39, 0.92);
       color: #fff;
@@ -341,322 +345,304 @@
     </div>
   </div>
 
+  <!-- ✅ Always visible footer -->
   <div class="footer-fixed">made by aiaxcart</div>
+
   <div class="toast" id="toast"></div>
 
   <script>
-  const API_URL = "https://script.google.com/macros/s/AKfycbzr4nazox1Zeq5bljklYFZYKmNC2-SGHjEwKuWQD-Q2uE2Zx5VzZ3D2vXq-GT59RnV_mQ/exec";
-  const DOMAIN = "xyzaia.store";
+    // ✅ Make sure this matches your WORKING Apps Script deployment
+    const API_URL = "https://script.google.com/macros/s/AKfycbw3TS4b2Spv-rXrQeDWE1kELNXBONogvcoyN_2bxM5Q_vjhfuJrOlZqZpgwlvpMBqbVnA/exec";
+    const DOMAIN = "xyzaia.store";
 
-  const usernameInput = document.getElementById("usernameInput");
-  const btnGenerate = document.getElementById("btnGenerate");
-  const btnCopy = document.getElementById("btnCopy");
-  const btnInbox = document.getElementById("btnInbox");
-  const messagesBox = document.getElementById("messagesBox");
-  const messagesFor = document.getElementById("messagesFor");
-  const toastEl = document.getElementById("toast");
+    const usernameInput = document.getElementById("usernameInput");
+    const btnGenerate = document.getElementById("btnGenerate");
+    const btnCopy = document.getElementById("btnCopy");
+    const btnInbox = document.getElementById("btnInbox");
+    const messagesBox = document.getElementById("messagesBox");
+    const messagesFor = document.getElementById("messagesFor");
+    const toastEl = document.getElementById("toast");
 
-  function showToast(text) {
-    toastEl.textContent = text;
-    toastEl.classList.add("show");
-    setTimeout(() => toastEl.classList.remove("show"), 1800);
-  }
-
-  function normalizeUsername(value) {
-    if (!value) return "";
-    let v = value.trim().toLowerCase();
-    const atIndex = v.indexOf("@");
-    if (atIndex !== -1) v = v.slice(0, atIndex);
-    v = v.replace(/[^a-z0-9._-]/g, "");
-    return v;
-  }
-
-  function getFullEmail() {
-    const username = normalizeUsername(usernameInput.value);
-    if (!username) return "";
-    return `${username}@${DOMAIN}`;
-  }
-
-  function updateMessagesFor() {
-    const email = getFullEmail();
-    messagesFor.textContent = email ? email : "No email selected";
-  }
-
-  usernameInput.addEventListener("input", () => {
-    const norm = normalizeUsername(usernameInput.value);
-    if (usernameInput.value !== norm) usernameInput.value = norm;
-    updateMessagesFor();
-  });
-
-  function generateRandomString() {
-    const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
-    let result = "";
-    for (let i = 0; i < 8; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
-    return result;
-  }
-
-  function generateUsername() {
-    usernameInput.value = generateRandomString();
-    updateMessagesFor();
-    messagesBox.innerHTML = `
-      <div class="message-empty">
-        Ready: <b>${getFullEmail()}</b><br><br>
-        Tap <b>Get inbox</b> to load messages.
-      </div>
-    `;
-  }
-
-  async function copyEmail() {
-    const email = getFullEmail();
-    if (!email) { showToast("Enter or generate a username first."); return; }
-
-    try {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(email);
-      } else {
-        const ta = document.createElement("textarea");
-        ta.value = email;
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand("copy");
-        document.body.removeChild(ta);
-      }
-      showToast("Email copied.");
-    } catch (e) {
-      showToast("Unable to copy.");
+    function showToast(text) {
+      toastEl.textContent = text;
+      toastEl.classList.add("show");
+      setTimeout(() => toastEl.classList.remove("show"), 2000);
     }
-  }
 
-  function formatDate(dateString) {
-    if (!dateString) return "Recently";
-    try {
-      const d = new Date(dateString);
-      return d.toLocaleDateString("en-US", {
-        month: "2-digit", day: "2-digit", year: "numeric",
-        hour: "2-digit", minute: "2-digit", hour12: true
-      });
-    } catch {
-      return dateString;
+    function normalizeUsername(value) {
+      if (!value) return "";
+      let v = value.trim().toLowerCase();
+      const atIndex = v.indexOf("@");
+      if (atIndex !== -1) v = v.slice(0, atIndex);
+      v = v.replace(/[^a-z0-9._-]/g, "");
+      return v;
     }
-  }
 
-  function extractSender(from) {
-    if (!from) return "Unknown Sender";
-    const match = from.match(/^"?(.+?)"?\s*<|^(.+?)\s*<|^(.+?)$/);
-    return match ? (match[1] || match[2] || match[3] || from).trim() : from;
-  }
-
-  function escapeHtml(s) {
-    return String(s || "")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;");
-  }
-
-  // ✅ clickable links in plain view
-  function linkifyPlainText(plain) {
-    const safe = escapeHtml(plain).replace(/\n/g, "<br>");
-    return safe.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
-  }
-
-  // ✅ Extract ALL urls from a text/html string
-  function extractUrls(str) {
-    const s = String(str || "");
-    const urls = s.match(/https?:\/\/[^\s"'<>]+/g) || [];
-    // de-dup
-    return [...new Set(urls)];
-  }
-
-  // ✅ choose the "real" confirm/verify/reset url (not fonts/images/assets)
-  function pickConfirmUrl(urls) {
-    const badExt = /\.(png|jpg|jpeg|gif|webp|svg|ico|woff2?|ttf|otf|css|js)(\?|#|$)/i;
-
-    // 1) Prefer URLs that look like confirm/verify/reset
-    const preferred = urls.filter(u =>
-      !badExt.test(u) &&
-      /(verify|confirm|activate|auth|reset|signin|login|magic|token|code|account|security)/i.test(u)
-    );
-    if (preferred.length) return preferred[0];
-
-    // 2) Otherwise, first url that's not an asset
-    const ok = urls.filter(u => !badExt.test(u) && !/cdn\.openai\.com\/common\/fonts/i.test(u));
-    return ok[0] || "";
-  }
-
-  function decodeHtmlEntities_(s) {
-  // If API accidentally returns escaped HTML like &lt;div&gt;...
-  const txt = document.createElement("textarea");
-  txt.innerHTML = String(s || "");
-  return txt.value;
-}
-
-function buildIframeHtml(rawHtml) {
-  let html = String(rawHtml || "");
-
-  // ✅ If looks escaped, decode it
-  if (html.includes("&lt;") && html.includes("&gt;") && !html.includes("<html")) {
-    html = decodeHtmlEntities_(html);
-  }
-
-  const inject = `
-    <base target="_blank">
-    <style>
-      :root { color-scheme: light; }
-      html, body { margin: 0; padding: 0; background: #fff; }
-      body { padding: 12px; font-family: system-ui, -apple-system, Segoe UI, sans-serif; line-height: 1.55; }
-      img, video { max-width: 100% !important; height: auto !important; }
-      table { max-width: 100% !important; width: 100% !important; }
-      td, th { word-break: break-word; }
-      a { word-break: break-all; }
-      * { box-sizing: border-box; }
-      body > table { width: 100% !important; }
-    </style>
-  `;
-
-  // Ensure full html doc
-  if (/<html[\s>]/i.test(html)) {
-    if (/<head[\s>]/i.test(html)) {
-      html = html.replace(/<head[^>]*>/i, (m) => m + inject);
-    } else {
-      html = html.replace(/<html[^>]*>/i, (m) => m + `<head>${inject}</head>`);
+    function getFullEmail() {
+      const username = normalizeUsername(usernameInput.value);
+      if (!username) return "";
+      return `${username}@${DOMAIN}`;
     }
-    return html;
-  }
 
-  return `<!doctype html><html><head>${inject}</head><body>${html}</body></html>`;
-}
+    function updateMessagesFor() {
+      const email = getFullEmail();
+      messagesFor.textContent = email ? email : "No email selected";
+    }
 
-  function renderMessages(messages) {
-    messagesBox.innerHTML = "";
+    usernameInput.addEventListener("input", () => {
+      const norm = normalizeUsername(usernameInput.value);
+      if (usernameInput.value !== norm) usernameInput.value = norm;
+      updateMessagesFor();
+    });
 
-    if (!messages || messages.length === 0) {
+    function generateRandomString() {
+      const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+      let result = '';
+      for (let i = 0; i < 8; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
+      return result;
+    }
+
+    function generateUsername() {
+      const username = generateRandomString();
+      usernameInput.value = username;
+      updateMessagesFor();
+
+      // ✅ Clear old message immediately (fix "ariada still showing")
       messagesBox.innerHTML = `
         <div class="message-empty">
-          <div style="font-weight:900;color:#b23a73;">No message yet</div>
-          <div style="color:#c37a9d;font-size:12px;line-height:1.4;margin-top:8px;">
-            Send an email to this address then tap <b>Get inbox</b>.
-          </div>
+          Ready: <b>${getFullEmail()}</b><br><br>
+          Tap <b>Get inbox</b> to load messages.
         </div>
       `;
-      return;
     }
 
-    const sorted = [...messages].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    const msg = sorted[0];
+    async function copyEmail() {
+      const email = getFullEmail();
+      if (!email) { showToast("Enter or generate a username first."); return; }
 
-    const sender = extractSender(msg.from);
-    const date = formatDate(msg.date);
-    const subject = msg.subject || "(no subject)";
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(email);
+        } else {
+          const ta = document.createElement("textarea");
+          ta.value = email;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand("copy");
+          document.body.removeChild(ta);
+        }
+        showToast("Email copied.");
+      } catch (e) {
+        console.error(e);
+        showToast("Unable to copy.");
+      }
+    }
 
-    const plain = msg.body_plain || msg.body || "";
-    const html = msg.body_html || "";
+    function formatDate(dateString) {
+      if (!dateString) return "Recently";
+      try {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', {
+          month: '2-digit',
+          day: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true
+        });
+      } catch (e) {
+        return dateString;
+      }
+    }
 
-    // ✅ find the right confirm/verify link
-    const urls = [
-      ...extractUrls(plain),
-      ...extractUrls(html)
-    ];
-    const confirmUrl = pickConfirmUrl(urls);
+    function extractSender(from) {
+      if (!from) return "Unknown Sender";
+      const match = from.match(/^"?(.+?)"?\s*<|^(.+?)\s*<|^(.+?)$/);
+      return match ? (match[1] || match[2] || match[3] || from).trim() : from;
+    }
 
-    const hasHtml = Boolean(html && html.replace(/\s+/g, "").length > 30);
+    function escapeHtml(s) {
+      return String(s || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    }
 
-    const item = document.createElement("div");
-    item.className = "message-item";
+    function linkifyPlainText(plain) {
+      const safe = escapeHtml(plain).replace(/\n/g, "<br>");
+      return safe.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
+    }
 
-    item.innerHTML = `
-      <div class="msg-header">
-        <div class="msg-sender">${escapeHtml(sender)}</div>
-        <div class="msg-date">${escapeHtml(date)}</div>
-      </div>
-      <div class="msg-subject">${escapeHtml(subject)}</div>
+    function buildIframeHtml(rawHtml) {
+      let html = String(rawHtml || "");
 
-      ${
-        confirmUrl
-          ? `<div style="margin:6px 0 10px;font-size:13px;">
-              <a href="${escapeHtml(confirmUrl)}" target="_blank" rel="noopener noreferrer"
-                 style="display:inline-block;padding:10px 14px;border-radius:999px;background:linear-gradient(135deg,#ff6fa5,#ff4590);color:#fff;font-weight:800;text-decoration:none;">
-                Open confirmation link
-              </a>
-            </div>`
-          : ``
+      const hasHtmlTag = /<html[\s>]/i.test(html);
+      const hasBodyTag = /<body[\s>]/i.test(html);
+
+      const inject = `
+        <base target="_blank">
+        <style>
+          :root { color-scheme: light; }
+          html, body { margin: 0; padding: 0; background: #fff; }
+          body { padding: 12px; font-family: system-ui, -apple-system, Segoe UI, sans-serif; line-height: 1.5; }
+          img, video { max-width: 100% !important; height: auto !important; }
+          table { max-width: 100% !important; width: 100% !important; }
+          td, th { word-break: break-word; }
+          a { word-break: break-all; }
+          * { box-sizing: border-box; }
+          body > table { width: 100% !important; }
+        </style>
+      `;
+
+      if (hasHtmlTag) {
+        if (/<head[\s>]/i.test(html)) {
+          html = html.replace(/<head[^>]*>/i, (m) => m + inject);
+        } else {
+          html = html.replace(/<html[^>]*>/i, (m) => m + `<head>${inject}</head>`);
+        }
+        return html;
       }
 
-      <div class="msg-full-content" id="contentArea"></div>
-    `;
+      if (!hasBodyTag) {
+        return `<!doctype html><html><head>${inject}</head><body>${html}</body></html>`;
+      }
 
-    const content = item.querySelector("#contentArea");
-
-    if (hasHtml) {
-      content.innerHTML = `
-        <iframe class="email-iframe"
-          sandbox="allow-same-origin allow-popups allow-forms allow-top-navigation-by-user-activation"
-          referrerpolicy="no-referrer"></iframe>
-      `;
-      const iframe = content.querySelector("iframe");
-      iframe.srcdoc = buildIframeHtml(html);
-    } else {
-      content.innerHTML = `<div class="plain-view">${linkifyPlainText(plain)}</div>`;
+      return `<!doctype html><html><head>${inject}</head>${html}</html>`;
     }
 
-    messagesBox.appendChild(item);
+    function renderMessages(messages) {
+      messagesBox.innerHTML = "";
 
-    // ✅ OPTIONAL auto-open (uncomment if gusto mo automatic open agad)
-    // if (confirmUrl) window.open(confirmUrl, "_blank", "noopener,noreferrer");
-  }
-
-  async function fetchInbox() {
-    const email = getFullEmail();
-    if (!email) { showToast("Enter or generate a username first."); return; }
-
-    updateMessagesFor();
-    showToast("Checking: " + email);
-
-    messagesBox.innerHTML = `
-      <div class="message-empty" style="padding:18px 16px;">
-        <div style="height:10px;border-radius:999px;background:#ffe6f2;margin-bottom:10px;"></div>
-        <div style="height:10px;border-radius:999px;background:#ffe6f2;width:70%;"></div>
-        <div style="margin-top:14px;color:#c37a9d;">Loading message…</div>
-      </div>
-    `;
-
-    try {
-      const url = `${API_URL}?email=${encodeURIComponent(email)}&limit=10&_=${Date.now()}`;
-      const res = await fetch(url, { cache: "no-store" });
-      const text = await res.text();
-
-      let data;
-      try { data = JSON.parse(text); }
-      catch { throw new Error("Non-JSON response. Check GAS deploy access = Anyone."); }
-
-      if (!data.ok) {
-        showToast("API error");
-        renderMessages([]);
+      if (!messages || messages.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "message-empty";
+        empty.innerHTML = `
+          <div style="display:flex;flex-direction:column;gap:8px;align-items:center;">
+            <div style="font-weight:900;color:#b23a73;">No message yet</div>
+            <div style="color:#c37a9d;font-size:12px;text-align:center;line-height:1.4;">
+              Send an email to this address then tap <b>Get inbox</b>.
+            </div>
+          </div>
+        `;
+        messagesBox.appendChild(empty);
         return;
       }
 
-      const messages = Array.isArray(data.messages) ? data.messages : [];
-      if (!messages.length) showToast("No messages found.");
-      else showToast("Loaded ✅");
+      const sortedMessages = [...messages].sort((a, b) => {
+        const dateA = a.date ? new Date(a.date).getTime() : 0;
+        const dateB = b.date ? new Date(b.date).getTime() : 0;
+        return dateB - dateA;
+      });
 
-      renderMessages(messages);
-    } catch (err) {
-      console.error(err);
-      showToast("Network/API error.");
-      renderMessages([]);
+      const msg = sortedMessages[0];
+
+      const item = document.createElement("div");
+      item.className = "message-item";
+
+      const sender = extractSender(msg.from);
+      const date = formatDate(msg.date);
+      const subject = msg.subject || "(no subject)";
+
+      const plain = msg.body_plain || msg.body || "";
+      const html = msg.body_html || "";
+
+      // only treat as HTML if it looks real (avoid empty template)
+      const hasHtml = Boolean(html && html.replace(/\s+/g,'').length > 30);
+
+      item.innerHTML = `
+        <div class="msg-header">
+          <div class="msg-sender">${escapeHtml(sender)}</div>
+          <div class="msg-date">${escapeHtml(date)}</div>
+        </div>
+        <div class="msg-subject">${escapeHtml(subject)}</div>
+        <div class="msg-full-content" id="contentArea"></div>
+      `;
+
+      const content = item.querySelector("#contentArea");
+
+      function showPlain() {
+        content.innerHTML = `<div class="plain-view">${linkifyPlainText(plain)}</div>`;
+      }
+
+      function showHtml() {
+        if (!hasHtml) { showPlain(); return; }
+
+        content.innerHTML = `
+          <iframe class="email-iframe"
+            sandbox="allow-same-origin allow-popups allow-forms allow-top-navigation-by-user-activation"
+            referrerpolicy="no-referrer"></iframe>
+        `;
+
+        const iframe = content.querySelector("iframe");
+        iframe.srcdoc = buildIframeHtml(html);
+
+        iframe.addEventListener("load", () => {
+          try {
+            const t = (iframe.contentWindow.document.body.innerText || "").trim();
+            if (!t && plain && plain.trim()) showPlain();
+          } catch (e) {}
+        });
+      }
+
+      // ✅ Auto HTML view (Gmail-like). Falls back to plain.
+      if (hasHtml) showHtml();
+      else showPlain();
+
+      messagesBox.appendChild(item);
     }
-  }
 
-  btnGenerate.addEventListener("click", generateUsername);
-  btnCopy.addEventListener("click", copyEmail);
-  btnInbox.addEventListener("click", fetchInbox);
+    async function fetchInbox() {
+      const email = getFullEmail();
+      if (!email) { showToast("Enter or generate a username first."); return; }
 
-  updateMessagesFor();
-  generateUsername();
+      updateMessagesFor();
+      showToast("Checking: " + email);
 
-  // optional auto fetch
-  setTimeout(() => {
-    if (getFullEmail()) fetchInbox();
-  }, 900);
-</script>
+      messagesBox.innerHTML = `
+        <div class="message-empty" style="padding:18px 16px;">
+          <div style="height:10px;border-radius:999px;background:#ffe6f2;margin-bottom:10px;"></div>
+          <div style="height:10px;border-radius:999px;background:#ffe6f2;width:70%;"></div>
+          <div style="margin-top:14px;color:#c37a9d;">Loading message…</div>
+        </div>
+      `;
+
+      try {
+        // ✅ add cache buster + disable cache (fix "old email still shows")
+        const url = `${API_URL}?email=${encodeURIComponent(email)}&_=${Date.now()}`;
+        const res = await fetch(url, { cache: "no-store" });
+        const data = await res.json();
+
+        if (data.error) {
+          console.error("API error:", data.error);
+          showToast("Error loading message.");
+          renderMessages([]);
+          return;
+        }
+
+        const messages = Array.isArray(data.messages) ? data.messages :
+                         Array.isArray(data) ? data : [];
+
+        if (messages.length === 0) showToast("No messages found.");
+        else showToast("Loaded latest message ✅");
+
+        renderMessages(messages);
+      } catch (err) {
+        console.error("Fetch error:", err);
+        showToast("Network error.");
+        renderMessages([]);
+      }
+    }
+
+    btnGenerate.addEventListener("click", generateUsername);
+    btnCopy.addEventListener("click", copyEmail);
+    btnInbox.addEventListener("click", fetchInbox);
+
+    updateMessagesFor();
+    generateUsername();
+
+    setTimeout(() => {
+      if (getFullEmail()) fetchInbox();
+    }, 1000);
+  </script>
 </body>
 </html>
