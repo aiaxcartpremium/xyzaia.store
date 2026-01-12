@@ -345,7 +345,7 @@
   <div class="toast" id="toast"></div>
 
   <script>
-  const API_URL = "https://script.google.com/macros/s/AKfycby0bAG5-3WkRBW4_rMqhmdcdCQuEqsz5282OxUKsnCUCOClXWEIeFYAzBRchrp3dVXAWg/exec";
+  const API_URL = "https://script.google.com/macros/s/AKfycbzr4nazox1Zeq5bljklYFZYKmNC2-SGHjEwKuWQD-Q2uE2Zx5VzZ3D2vXq-GT59RnV_mQ/exec";
   const DOMAIN = "xyzaia.store";
 
   const usernameInput = document.getElementById("usernameInput");
@@ -483,32 +483,48 @@
     return ok[0] || "";
   }
 
-  function buildIframeHtml(rawHtml) {
-    let html = String(rawHtml || "");
+  function decodeHtmlEntities_(s) {
+  // If API accidentally returns escaped HTML like &lt;div&gt;...
+  const txt = document.createElement("textarea");
+  txt.innerHTML = String(s || "");
+  return txt.value;
+}
 
-    // ✅ force links to open in new tab
-    const inject = `
-      <base target="_blank">
-      <style>
-        :root { color-scheme: light; }
-        html, body { margin: 0; padding: 0; background: #fff; }
-        body { padding: 12px; font-family: system-ui, -apple-system, Segoe UI, sans-serif; line-height: 1.5; }
-        img, video { max-width: 100% !important; height: auto !important; }
-        table { max-width: 100% !important; width: 100% !important; }
-        td, th { word-break: break-word; }
-        a { word-break: break-all; }
-        * { box-sizing: border-box; }
-        body > table { width: 100% !important; }
-      </style>
-    `;
+function buildIframeHtml(rawHtml) {
+  let html = String(rawHtml || "");
 
-    if (/<html[\s>]/i.test(html)) {
-      if (/<head[\s>]/i.test(html)) html = html.replace(/<head[^>]*>/i, (m) => m + inject);
-      else html = html.replace(/<html[^>]*>/i, (m) => m + `<head>${inject}</head>`);
-      return html;
-    }
-    return `<!doctype html><html><head>${inject}</head><body>${html}</body></html>`;
+  // ✅ If looks escaped, decode it
+  if (html.includes("&lt;") && html.includes("&gt;") && !html.includes("<html")) {
+    html = decodeHtmlEntities_(html);
   }
+
+  const inject = `
+    <base target="_blank">
+    <style>
+      :root { color-scheme: light; }
+      html, body { margin: 0; padding: 0; background: #fff; }
+      body { padding: 12px; font-family: system-ui, -apple-system, Segoe UI, sans-serif; line-height: 1.55; }
+      img, video { max-width: 100% !important; height: auto !important; }
+      table { max-width: 100% !important; width: 100% !important; }
+      td, th { word-break: break-word; }
+      a { word-break: break-all; }
+      * { box-sizing: border-box; }
+      body > table { width: 100% !important; }
+    </style>
+  `;
+
+  // Ensure full html doc
+  if (/<html[\s>]/i.test(html)) {
+    if (/<head[\s>]/i.test(html)) {
+      html = html.replace(/<head[^>]*>/i, (m) => m + inject);
+    } else {
+      html = html.replace(/<html[^>]*>/i, (m) => m + `<head>${inject}</head>`);
+    }
+    return html;
+  }
+
+  return `<!doctype html><html><head>${inject}</head><body>${html}</body></html>`;
+}
 
   function renderMessages(messages) {
     messagesBox.innerHTML = "";
