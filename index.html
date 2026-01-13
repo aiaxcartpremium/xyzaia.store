@@ -251,15 +251,18 @@
       transform: translateX(-50%);
       padding: 8px 14px;
       border-radius: 999px;
+
       font-size: 11px;
       font-weight: 900;
       letter-spacing: .08em;
       text-transform: uppercase;
+
       color: #b23a73;
       background: rgba(255,255,255,0.72);
       border: 1px solid rgba(255,151,190,0.55);
       box-shadow: 0 10px 26px rgba(255, 73, 140, 0.25);
       backdrop-filter: blur(10px);
+
       z-index: 50;
       pointer-events: none;
     }
@@ -281,24 +284,6 @@
       z-index: 60;
     }
     .toast.show { opacity: 1; transform: translate(-50%, -4px); }
-
-    @media (max-width: 600px) {
-      body { padding: 12px; padding-bottom: 70px; }
-      .card { padding: 16px; }
-      .controls { flex-wrap: nowrap; }
-      .btn { font-size: 12px; padding: 0 8px; }
-      .email-domain { font-size: 12px; padding: 0 10px; }
-      .messages-header { flex-direction: column; align-items: flex-start; gap: 4px; }
-      .messages-for { max-width: 100%; text-align: left; font-size: 10px; }
-      .message-item { padding: 14px; }
-      .email-iframe { height: 55vh; }
-    }
-
-    @media (max-width: 400px) {
-      .controls { flex-wrap: wrap; }
-      .btn { min-width: calc(33.333% - 6px); font-size: 11px; }
-      .email-domain { font-size: 11px; padding: 0 8px; }
-    }
   </style>
 </head>
 
@@ -344,8 +329,8 @@
   <div class="toast" id="toast"></div>
 
   <script>
-    // ✅ UPDATE this to your WORKING Apps Script deployment URL
-    const API_URL = "https://script.google.com/macros/s/AKfycbw3TS4b2Spv-rXrQeDWE1kELNXBONogvcoyN_2bxM5Q_vjhfuJrOlZqZpgwlvpMBqbVnA/exec";
+    // ✅ Update this to your working Apps Script deployment URL
+    const API_URL = "https://script.google.com/macros/s/AKfycbzpZ5hcmQr6RAjIOvfQAFwRhdF9UvJZY4AH92RfKcYCB4YAXMW0YMjsgS9AhX0rlQY0fg/exec";
     const DOMAIN = "xyzaia.store";
 
     const usernameInput = document.getElementById("usernameInput");
@@ -425,7 +410,6 @@
         }
         showToast("Email copied.");
       } catch (e) {
-        console.error(e);
         showToast("Unable to copy.");
       }
     }
@@ -465,28 +449,17 @@
       return safe.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
     }
 
-    // ✅ IFRAME HTML builder + CLICK FORWARDER (fix blank confirm page)
+    // ✅ Minimal inject only: base target + click forwarder (no CSS override)
     function buildIframeHtml(rawHtml) {
       let html = String(rawHtml || "");
 
       const inject = `
         <base target="_top">
-        <style>
-          :root { color-scheme: light; }
-          html, body { margin: 0; padding: 0; background: #fff; }
-          body { padding: 12px; font-family: system-ui, -apple-system, Segoe UI, sans-serif; line-height: 1.5; }
-          img, video { max-width: 100% !important; height: auto !important; }
-          table { max-width: 100% !important; width: 100% !important; }
-          td, th { word-break: break-word; }
-          a { word-break: break-all; }
-          * { box-sizing: border-box; }
-          body > table { width: 100% !important; }
-        </style>
         <script>
-          // forward all <a> clicks to parent (reliable on mobile)
           document.addEventListener('click', function(e){
             var a = e.target && e.target.closest ? e.target.closest('a') : null;
             if (!a) return;
+
             var href = a.getAttribute('href') || '';
             if (!href) return;
             if (href.indexOf('#') === 0) return;
@@ -498,12 +471,14 @@
             try { url = new URL(href, document.baseURI).toString(); }
             catch(err){ url = href; }
 
+            // send to parent so parent does the redirect (push-through)
             try { parent.postMessage({ type: 'OPEN_EMAIL_LINK', url: url }, '*'); } catch(err){}
           }, true);
         <\/script>
       `;
 
       const hasHtmlTag = /<html[\s>]/i.test(html);
+
       if (hasHtmlTag) {
         if (/<head[\s>]/i.test(html)) {
           html = html.replace(/<head[^>]*>/i, (m) => m + inject);
@@ -513,6 +488,7 @@
         return html;
       }
 
+      // if snippet doesn't contain <html>, wrap it cleanly
       return `<!doctype html><html><head>${inject}</head><body>${html}</body></html>`;
     }
 
@@ -552,7 +528,8 @@
       const plain = msg.body_plain || msg.body || "";
       const html = msg.body_html || "";
 
-      const hasHtml = Boolean(html && html.replace(/\s+/g,'').length > 30);
+      // allow even shorter html (some emails are short but still valid html)
+      const hasHtml = Boolean(html && html.replace(/\s+/g,'').length > 10);
 
       item.innerHTML = `
         <div class="msg-header">
@@ -574,7 +551,7 @@
 
         content.innerHTML = `
           <iframe class="email-iframe"
-            sandbox="allow-scripts allow-forms allow-popups allow-top-navigation-by-user-activation"
+            sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-top-navigation-by-user-activation"
             referrerpolicy="no-referrer"></iframe>
         `;
 
@@ -582,6 +559,7 @@
         iframe.srcdoc = buildIframeHtml(html);
 
         iframe.addEventListener("load", () => {
+          // if html loads empty, fallback to plain
           try {
             const t = (iframe.contentWindow.document.body.innerText || "").trim();
             if (!t && plain && plain.trim()) showPlain();
@@ -595,16 +573,17 @@
       messagesBox.appendChild(item);
     }
 
-    // ✅ Receive forwarded clicks from iframe and PUSH THROUGH (same tab)
+    // ✅ Push-through redirect handler
     window.addEventListener("message", (ev) => {
       const data = ev && ev.data ? ev.data : null;
       if (!data || data.type !== "OPEN_EMAIL_LINK" || !data.url) return;
 
       const url = String(data.url);
+      // push-through (same tab) to avoid blank in new tab webview
       try {
-        window.location.href = url; // strongest push-through
+        window.location.assign(url);
       } catch (e) {
-        window.open(url, "_blank", "noopener,noreferrer");
+        window.location.href = url;
       }
     });
 
@@ -629,7 +608,6 @@
         const data = await res.json();
 
         if (data.error) {
-          console.error("API error:", data.error);
           showToast("Error loading message.");
           renderMessages([]);
           return;
@@ -643,7 +621,7 @@
 
         renderMessages(messages);
       } catch (err) {
-        console.error("Fetch error:", err);
+        console.error(err);
         showToast("Network error.");
         renderMessages([]);
       }
@@ -656,7 +634,6 @@
     updateMessagesFor();
     generateUsername();
 
-    // optional auto fetch
     setTimeout(() => {
       if (getFullEmail()) fetchInbox();
     }, 1000);
